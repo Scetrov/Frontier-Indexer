@@ -229,6 +229,11 @@ async fn main() -> Result<(), anyhow::Error> {
         match package {
             Package::App => {}
             Package::World => {}
+            Package::World => {
+                indexer
+                    .sequential_pipeline(CharacterHandler::new(env), Default::default())
+                    .await?;
+            }
         }
     }
 
