@@ -3,6 +3,7 @@ pub mod sui;
 pub mod world;
 
 pub use world::access::event_owner_cap_created::*;
+pub use world::access::event_owner_cap_transferred::*;
 pub use world::access::owner_caps::*;
 
 pub use world::characters::characters::*;
