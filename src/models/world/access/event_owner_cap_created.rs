@@ -30,7 +30,7 @@ impl StoredOwnerCapCreated {
             bcs::from_bytes(&event.contents).expect("Failed to deserialze OwnerCap Created event");
 
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed to parse checkpoint timestamp for DateTime");
+            .expect("Failed to parse checkpoint timestamp into DateTime");
 
         Self {
             occurred_at,
