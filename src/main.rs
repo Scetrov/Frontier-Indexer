@@ -244,6 +244,10 @@ async fn main() -> Result<(), anyhow::Error> {
                 indexer
                     .sequential_pipeline(OwnerCapCreatedHandler::new(env), Default::default())
                     .await?;
+
+                indexer
+                    .sequential_pipeline(OwnerCapTransferredHandler::new(env), Default::default())
+                    .await?;
             }
         }
     }
