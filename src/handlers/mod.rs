@@ -65,6 +65,9 @@ impl EventMeta {
 }
 
 // List of all handlers
+pub mod world;
+
+pub use world::characters::character_handler::*;
 
 pub(crate) fn is_indexed_tx(
     tx: &ExecutedTransaction,
