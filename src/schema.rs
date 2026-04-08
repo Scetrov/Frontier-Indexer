@@ -36,5 +36,21 @@ pub mod indexer {
         }
     }
 
-    diesel::allow_tables_to_appear_in_same_query!(characters, events_character_created);
+    diesel::table! {
+        indexer.owner_caps (id) {
+            #[max_length = 66]
+            id -> Varchar,
+            #[max_length = 66]
+            object_id -> Varchar,
+            #[max_length = 66]
+            owner_address -> Varchar,
+            #[max_length = 66]
+            package_id -> Varchar,
+            module_name -> Text,
+            struct_name -> Text,
+            checkpoint_updated -> Int8,
+        }
+    }
+
+    diesel::allow_tables_to_appear_in_same_query!(characters, events_character_created, owner_caps);
 }
