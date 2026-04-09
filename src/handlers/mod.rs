@@ -76,6 +76,8 @@ pub use world::assemblies::assembly_created_handler::*;
 pub use world::characters::character_created_handler::*;
 pub use world::characters::character_handler::*;
 
+pub use world::primitives::location_revealed_handler::*;
+
 pub(crate) fn is_indexed_tx(
     tx: &ExecutedTransaction,
     checkpoint_objects: &ObjectSet,

@@ -12,6 +12,7 @@ pub use world::assemblies::event_assembly_created::*;
 pub use world::characters::characters::*;
 pub use world::characters::event_character_created::*;
 
+pub use world::primitives::event_location_revealed::*;
 pub use world::primitives::event_status_changed::*;
 pub use world::primitives::location::*;
 pub use world::primitives::metadata::*;
