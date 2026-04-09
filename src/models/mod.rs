@@ -10,4 +10,5 @@ pub use world::characters::characters::*;
 pub use world::characters::event_character_created::*;
 
 pub use world::primitives::metadata::*;
+pub use world::primitives::status::*;
 pub use world::primitives::tenant_item_id::*;
