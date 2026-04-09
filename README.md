@@ -1,6 +1,8 @@
 # Frontier-Indexer
 Custom Sui indexer for the EVE Frontier world contracts
 
+Heavily based on the [Deepbook Indexer](https://github.com/MystenLabs/deepbookv3/tree/main/crates/indexer)
+
 This project is still under heavy development and should not be used yet. 
 
 Building in public so those interested can follow progress and provide inputs along the way.
