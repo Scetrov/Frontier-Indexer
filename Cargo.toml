@@ -17,6 +17,8 @@ dotenvy = "0.15"
 hex = "0.4"
 bigdecimal = "0.4"
 prometheus = "0.14.0"
+strum = "0.28.0"
+strum_macros = "0.28.0"
 
 sui-pg-db = { git = "https://github.com/MystenLabs/sui.git", branch = "testnet" }
 sui-indexer-alt-metrics = { git = "https://github.com/MystenLabs/sui.git", branch = "testnet" }
