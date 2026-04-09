@@ -104,7 +104,7 @@ impl Handler for CharacterCreatedHandler {
 
         diesel::insert_into(events_character_created)
             .values(batch)
-            .on_conflict((character_id, occurred_at))
+            .on_conflict((id, occurred_at))
             .do_nothing()
             .execute(conn)
             .await?;
