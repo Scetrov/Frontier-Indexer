@@ -43,7 +43,11 @@ impl StoredCharacter {
             bcs::from_bytes(bytes).expect("Failed to deserialize Character object");
 
         let (name, description, url) = match character.metadata {
-            Some(m) => (m.name, Some(m.description), Some(m.url)),
+            Some(metadata) => (
+                metadata.name,
+                Some(metadata.description),
+                Some(metadata.url),
+            ),
             None => ("Unknown".to_string(), None, None),
         };
 
