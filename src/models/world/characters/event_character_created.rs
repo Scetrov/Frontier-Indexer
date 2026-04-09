@@ -22,10 +22,11 @@ pub struct MoveCharacterCreated {
 #[diesel(table_name = events_character_created)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct StoredCharacterCreated {
+    pub event_id: String,
     pub occurred_at: chrono::DateTime<chrono::Utc>,
+    pub id: String,
     pub item_id: String,
     pub tenant: String,
-    pub character_id: String,
     pub owner_address: String,
     pub tribe_id: i64,
 }
@@ -39,10 +40,11 @@ impl StoredCharacterCreated {
             .expect("Failed to parse checkpoint timestamp into DateTime");
 
         Self {
+            event_id: meta.event_digest(),
             occurred_at,
+            id: move_event.character_id.to_hex(),
             item_id: move_event.key.item_id.to_string(),
             tenant: move_event.key.tenant.to_string(),
-            character_id: move_event.character_id.to_hex(),
             owner_address: move_event.character_address.to_hex(),
             tribe_id: move_event.tribe_id as i64,
         }

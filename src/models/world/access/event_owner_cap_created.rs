@@ -19,6 +19,7 @@ pub struct MoveOwnerCapCreated {
 #[diesel(table_name = events_owner_cap_created)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct StoredOwnerCapCreated {
+    pub event_id: String,
     pub occurred_at: DateTime<chrono::Utc>,
     pub id: String,
     pub object_id: String,
@@ -33,6 +34,7 @@ impl StoredOwnerCapCreated {
             .expect("Failed to parse checkpoint timestamp into DateTime");
 
         Self {
+            event_id: meta.event_digest(),
             occurred_at,
             id: move_event.owner_cap_id.to_hex(),
             object_id: move_event.authorized_object_id.to_hex(),

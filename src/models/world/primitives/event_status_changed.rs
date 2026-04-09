@@ -24,6 +24,7 @@ pub struct MoveStatusChanged {
 #[diesel(table_name = events_status_changed)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct StoredStatusChanged {
+    pub event_id: String,
     pub occurred_at: DateTime<chrono::Utc>,
     pub id: String,
     pub item_id: String,
@@ -41,6 +42,7 @@ impl StoredStatusChanged {
             .expect("Failed to parse checkpoint timestamp into DateTime");
 
         Self {
+            event_id: meta.event_digest(),
             occurred_at,
             id: move_event.assembly_id.to_hex(),
             item_id: move_event.assembly_key.item_id.to_string(),
