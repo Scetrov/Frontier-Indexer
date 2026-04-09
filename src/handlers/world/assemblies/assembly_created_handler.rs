@@ -36,7 +36,7 @@ impl AssemblyCreatedHandler {
     }
 
     fn is_assembly_created(&self, event: &Event) -> bool {
-        let module_name = "assemblies";
+        let module_name = "assembly";
         let event_name = "AssemblyCreatedEvent";
 
         let tag = &event.type_;
