@@ -59,7 +59,7 @@ impl OwnerCapTransferredHandler {
 
 #[async_trait]
 impl Processor for OwnerCapTransferredHandler {
-    const NAME: &'static str = "owner_captransferred_handler";
+    const NAME: &'static str = "owner_cap_transferred_handler";
     type Value = StoredOwnerCapTransferred;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {
