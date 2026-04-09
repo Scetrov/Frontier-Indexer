@@ -136,14 +136,15 @@ impl Handler for CharacterHandler {
             match action {
                 CharacterAction::Upsert(character) => {
                     let entry = upsert_map.entry(character.id.clone());
+
                     match entry {
                         Entry::Occupied(mut entry) => {
                             if character.checkpoint_updated > entry.get().checkpoint_updated {
                                 entry.insert(character);
                             }
                         }
-                        Entry::Vacant(e) => {
-                            e.insert(character);
+                        Entry::Vacant(entry) => {
+                            entry.insert(character);
                         }
                     }
                 }
