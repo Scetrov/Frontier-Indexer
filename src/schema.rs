@@ -45,6 +45,23 @@ pub mod indexer {
     }
 
     diesel::table! {
+        indexer.events_assembly_created (event_id, occurred_at) {
+            #[max_length = 100]
+            event_id -> Varchar,
+            occurred_at -> Timestamptz,
+            #[max_length = 66]
+            id -> Varchar,
+            #[max_length = 12]
+            item_id -> Varchar,
+            #[max_length = 12]
+            tenant -> Varchar,
+            type_id -> Int8,
+            #[max_length = 66]
+            owner_cap_id -> Varchar,
+        }
+    }
+
+    diesel::table! {
         indexer.events_character_created (event_id, occurred_at) {
             #[max_length = 100]
             event_id -> Varchar,
@@ -147,6 +164,7 @@ pub mod indexer {
     diesel::allow_tables_to_appear_in_same_query!(
         assemblies,
         characters,
+        events_assembly_created,
         events_character_created,
         events_location_revealed,
         events_owner_cap_created,
