@@ -230,6 +230,26 @@ async fn main() -> Result<(), anyhow::Error> {
             Package::App => {}
             Package::World => {
                 indexer
+                    .sequential_pipeline(OwnerCapCreatedHandler::new(env), Default::default())
+                    .await?;
+
+                indexer
+                    .sequential_pipeline(OwnerCapTransferredHandler::new(env), Default::default())
+                    .await?;
+
+                indexer
+                    .sequential_pipeline(OwnerCapHandler::new(env), Default::default())
+                    .await?;
+
+                indexer
+                    .sequential_pipeline(AssemblyHandler::new(env), Default::default())
+                    .await?;
+
+                indexer
+                    .sequential_pipeline(AssemblyCreatedHandler::new(env), Default::default())
+                    .await?;
+
+                indexer
                     .sequential_pipeline(CharacterHandler::new(env), Default::default())
                     .await?;
 
@@ -238,15 +258,11 @@ async fn main() -> Result<(), anyhow::Error> {
                     .await?;
 
                 indexer
-                    .sequential_pipeline(OwnerCapHandler::new(env), Default::default())
+                    .sequential_pipeline(LocationRevealedHandler::new(env), Default::default())
                     .await?;
 
                 indexer
-                    .sequential_pipeline(OwnerCapCreatedHandler::new(env), Default::default())
-                    .await?;
-
-                indexer
-                    .sequential_pipeline(OwnerCapTransferredHandler::new(env), Default::default())
+                    .sequential_pipeline(StatusChangedHandler::new(env), Default::default())
                     .await?;
             }
         }

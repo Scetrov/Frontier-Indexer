@@ -13,7 +13,8 @@ use sui_indexer_alt_framework::pipeline::Processor;
 use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
-use crate::handlers::{is_indexed_tx, EventMeta};
+use crate::handlers::is_indexed_tx;
+use crate::handlers::EventMeta;
 use crate::models::StoredOwnerCapTransferred;
 
 use crate::AppEnv;
@@ -58,7 +59,7 @@ impl OwnerCapTransferredHandler {
 
 #[async_trait]
 impl Processor for OwnerCapTransferredHandler {
-    const NAME: &'static str = "owner_captransferred_handler";
+    const NAME: &'static str = "owner_cap_transferred_handler";
     type Value = StoredOwnerCapTransferred;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {
@@ -104,7 +105,7 @@ impl Handler for OwnerCapTransferredHandler {
 
         diesel::insert_into(events_owner_cap_transferred)
             .values(batch)
-            .on_conflict((id, occurred_at))
+            .on_conflict((event_id, occurred_at))
             .do_nothing()
             .execute(conn)
             .await?;

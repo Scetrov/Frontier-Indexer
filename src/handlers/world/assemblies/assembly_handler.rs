@@ -21,15 +21,15 @@ use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
 use crate::handlers::is_indexed_tx;
-use crate::models::StoredCharacter;
+use crate::models::StoredAssembly;
 use crate::AppEnv;
 
-pub struct CharacterHandler {
+pub struct AssemblyHandler {
     env: AppEnv,
     package_set: HashSet<AccountAddress>,
 }
 
-impl CharacterHandler {
+impl AssemblyHandler {
     pub fn new(env: AppEnv) -> Self {
         let package_set: HashSet<AccountAddress> = env
             .get_world_package_strings()
@@ -40,9 +40,9 @@ impl CharacterHandler {
         Self { env, package_set }
     }
 
-    fn is_character(&self, obj: &Object) -> bool {
-        let module_name = "character";
-        let struct_name = "Character";
+    fn is_assembly(&self, obj: &Object) -> bool {
+        let module_name = "assembly";
+        let struct_name = "Assembly";
 
         if let Some(move_type) = obj.type_() {
             if let Some(tag) = move_type.other() {
@@ -65,17 +65,16 @@ impl CharacterHandler {
         false
     }
 }
-
 #[derive(FieldCount)]
-pub enum CharacterAction {
-    Upsert(StoredCharacter),
+pub enum AssemblyAction {
+    Upsert(StoredAssembly),
     Delete(String),
 }
 
 #[async_trait]
-impl Processor for CharacterHandler {
-    const NAME: &'static str = "character_handler";
-    type Value = CharacterAction;
+impl Processor for AssemblyHandler {
+    const NAME: &'static str = "assembly_handler";
+    type Value = AssemblyAction;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {
         let mut results = vec![];
@@ -95,15 +94,15 @@ impl Processor for CharacterHandler {
                             let key = ObjectKey(object_id, version);
 
                             if let Some(obj) = checkpoint.object_set.get(&key) {
-                                if self.is_character(obj) {
-                                    let character = StoredCharacter::from_object(obj, cp_sequence);
-                                    results.push(CharacterAction::Upsert(character));
+                                if self.is_assembly(obj) {
+                                    let assembly = StoredAssembly::from_object(obj, cp_sequence);
+                                    results.push(AssemblyAction::Upsert(assembly));
                                 }
                             }
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(CharacterAction::Delete(object_id.to_string()));
+                        results.push(AssemblyAction::Delete(object_id.to_string()));
                     }
                 }
             }
@@ -114,7 +113,7 @@ impl Processor for CharacterHandler {
 }
 
 #[async_trait]
-impl Handler for CharacterHandler {
+impl Handler for AssemblyHandler {
     type Store = Db;
     type Batch = Vec<Self::Value>;
 
@@ -127,47 +126,49 @@ impl Handler for CharacterHandler {
         batch: &Self::Batch,
         conn: &mut Connection<'a>,
     ) -> anyhow::Result<usize> {
-        use crate::schema::indexer::characters::dsl::*;
+        use crate::schema::indexer::assemblies::dsl::*;
 
-        let mut upsert_map: HashMap<String, &StoredCharacter> = HashMap::new();
+        let mut upsert_map: HashMap<String, &StoredAssembly> = HashMap::new();
         let mut to_delete = Vec::new();
 
         for action in batch {
             match action {
-                CharacterAction::Upsert(character) => {
-                    let entry = upsert_map.entry(character.id.clone());
+                AssemblyAction::Upsert(assembly) => {
+                    let entry = upsert_map.entry(assembly.id.clone());
 
                     match entry {
                         Entry::Occupied(mut entry) => {
-                            if character.checkpoint_updated > entry.get().checkpoint_updated {
-                                entry.insert(character);
+                            if assembly.checkpoint_updated > entry.get().checkpoint_updated {
+                                entry.insert(assembly);
                             }
                         }
                         Entry::Vacant(entry) => {
-                            entry.insert(character);
+                            entry.insert(assembly);
                         }
                     }
                 }
-                CharacterAction::Delete(id_str) => to_delete.push(id_str.clone()),
+                AssemblyAction::Delete(id_str) => to_delete.push(id_str.clone()),
             }
         }
 
         // Remove any updates for which deletions exist.
         upsert_map.retain(|obj_id, _| !to_delete.contains(obj_id));
 
-        let final_values: Vec<&StoredCharacter> = upsert_map.into_values().collect();
+        let final_values: Vec<&StoredAssembly> = upsert_map.into_values().collect();
 
         if !final_values.is_empty() {
-            diesel::insert_into(characters)
+            diesel::insert_into(assemblies)
                 .values(final_values)
                 .on_conflict(id)
                 .do_update()
                 .set((
                     item_id.eq(excluded(item_id)),
                     tenant.eq(excluded(tenant)),
+                    type_id.eq(excluded(type_id)),
                     owner_cap_id.eq(excluded(owner_cap_id)),
-                    owner_address.eq(excluded(owner_address)),
-                    tribe_id.eq(excluded(tribe_id)),
+                    location.eq(excluded(location)),
+                    status.eq(excluded(status)),
+                    energy_source_id.eq(energy_source_id),
                     name.eq(excluded(name)),
                     description.eq(excluded(description)),
                     url.eq(excluded(url)),
@@ -177,16 +178,6 @@ impl Handler for CharacterHandler {
                 .execute(conn)
                 .await?;
         }
-
-        // Deletions happen last incase an object was updated before deletion.
-        if !to_delete.is_empty() {
-            diesel::delete(characters)
-                .filter(id.eq_any(to_delete))
-                .execute(conn)
-                .await?;
-        }
-
-        // Todo: Broadcast events for all of the above entry changes via websocket.
 
         Ok(batch.len())
     }

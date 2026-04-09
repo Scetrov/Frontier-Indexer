@@ -15,16 +15,16 @@ use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
 use crate::handlers::is_indexed_tx;
 use crate::handlers::EventMeta;
-use crate::models::StoredCharacterCreated;
+use crate::models::StoredStatusChanged;
 
 use crate::AppEnv;
 
-pub struct CharacterCreatedHandler {
+pub struct StatusChangedHandler {
     env: AppEnv,
     package_set: HashSet<AccountAddress>,
 }
 
-impl CharacterCreatedHandler {
+impl StatusChangedHandler {
     pub fn new(env: AppEnv) -> Self {
         let package_set: HashSet<AccountAddress> = env
             .get_world_package_strings()
@@ -35,9 +35,9 @@ impl CharacterCreatedHandler {
         Self { env, package_set }
     }
 
-    fn is_character_created(&self, event: &Event) -> bool {
-        let module_name = "character";
-        let event_name = "CharacterCreatedEvent";
+    fn is_status_changed(&self, event: &Event) -> bool {
+        let module_name = "status";
+        let event_name = "StatusChangedEvent";
 
         let tag = &event.type_;
 
@@ -58,9 +58,9 @@ impl CharacterCreatedHandler {
 }
 
 #[async_trait]
-impl Processor for CharacterCreatedHandler {
-    const NAME: &'static str = "charater_created_handler";
-    type Value = StoredCharacterCreated;
+impl Processor for StatusChangedHandler {
+    const NAME: &'static str = "status_changed_handler";
+    type Value = StoredStatusChanged;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {
         let mut results = vec![];
@@ -75,9 +75,9 @@ impl Processor for CharacterCreatedHandler {
             let base_meta = EventMeta::from_checkpoint_tx(checkpoint, tx);
 
             for (index, ev) in events.data.iter().enumerate() {
-                if self.is_character_created(ev) {
+                if self.is_status_changed(ev) {
                     let meta = base_meta.with_index(index);
-                    let event = StoredCharacterCreated::from_event(ev, &meta);
+                    let event = StoredStatusChanged::from_event(ev, &meta);
                     results.push(event);
                 }
             }
@@ -88,7 +88,7 @@ impl Processor for CharacterCreatedHandler {
 }
 
 #[async_trait]
-impl Handler for CharacterCreatedHandler {
+impl Handler for StatusChangedHandler {
     type Store = Db;
     type Batch = Vec<Self::Value>;
 
@@ -101,9 +101,9 @@ impl Handler for CharacterCreatedHandler {
         batch: &Self::Batch,
         conn: &mut Connection<'a>,
     ) -> anyhow::Result<usize> {
-        use crate::schema::indexer::events_character_created::dsl::*;
+        use crate::schema::indexer::events_status_changed::dsl::*;
 
-        diesel::insert_into(events_character_created)
+        diesel::insert_into(events_status_changed)
             .values(batch)
             .on_conflict((event_id, occurred_at))
             .do_nothing()

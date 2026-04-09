@@ -40,7 +40,7 @@ impl EventMeta {
     }
 
     pub fn event_digest(&self) -> String {
-        format!("{}{}", self.digest, self.event_index)
+        format!("{}:{}", self.digest, self.event_index)
     }
 
     pub fn digest(&self) -> String {
@@ -71,8 +71,14 @@ pub use world::access::owner_cap_created_handler::*;
 pub use world::access::owner_cap_handler::*;
 pub use world::access::owner_cap_transferred_handler::*;
 
+pub use world::assemblies::assembly_created_handler::*;
+pub use world::assemblies::assembly_handler::*;
+
 pub use world::characters::character_created_handler::*;
 pub use world::characters::character_handler::*;
+
+pub use world::primitives::location_revealed_handler::*;
+pub use world::primitives::status_changed_handler::*;
 
 pub(crate) fn is_indexed_tx(
     tx: &ExecutedTransaction,

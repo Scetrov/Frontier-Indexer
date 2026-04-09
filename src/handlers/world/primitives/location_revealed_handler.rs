@@ -15,16 +15,16 @@ use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
 use crate::handlers::is_indexed_tx;
 use crate::handlers::EventMeta;
-use crate::models::StoredCharacterCreated;
+use crate::models::StoredLocationRevealed;
 
 use crate::AppEnv;
 
-pub struct CharacterCreatedHandler {
+pub struct LocationRevealedHandler {
     env: AppEnv,
     package_set: HashSet<AccountAddress>,
 }
 
-impl CharacterCreatedHandler {
+impl LocationRevealedHandler {
     pub fn new(env: AppEnv) -> Self {
         let package_set: HashSet<AccountAddress> = env
             .get_world_package_strings()
@@ -35,9 +35,9 @@ impl CharacterCreatedHandler {
         Self { env, package_set }
     }
 
-    fn is_character_created(&self, event: &Event) -> bool {
-        let module_name = "character";
-        let event_name = "CharacterCreatedEvent";
+    fn is_location_revealed(&self, event: &Event) -> bool {
+        let module_name = "location";
+        let event_name = "LocationRevealedEvent";
 
         let tag = &event.type_;
 
@@ -58,9 +58,9 @@ impl CharacterCreatedHandler {
 }
 
 #[async_trait]
-impl Processor for CharacterCreatedHandler {
-    const NAME: &'static str = "charater_created_handler";
-    type Value = StoredCharacterCreated;
+impl Processor for LocationRevealedHandler {
+    const NAME: &'static str = "location_revealed_handler";
+    type Value = StoredLocationRevealed;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {
         let mut results = vec![];
@@ -75,9 +75,9 @@ impl Processor for CharacterCreatedHandler {
             let base_meta = EventMeta::from_checkpoint_tx(checkpoint, tx);
 
             for (index, ev) in events.data.iter().enumerate() {
-                if self.is_character_created(ev) {
+                if self.is_location_revealed(ev) {
                     let meta = base_meta.with_index(index);
-                    let event = StoredCharacterCreated::from_event(ev, &meta);
+                    let event = StoredLocationRevealed::from_event(ev, &meta);
                     results.push(event);
                 }
             }
@@ -88,7 +88,7 @@ impl Processor for CharacterCreatedHandler {
 }
 
 #[async_trait]
-impl Handler for CharacterCreatedHandler {
+impl Handler for LocationRevealedHandler {
     type Store = Db;
     type Batch = Vec<Self::Value>;
 
@@ -101,9 +101,9 @@ impl Handler for CharacterCreatedHandler {
         batch: &Self::Batch,
         conn: &mut Connection<'a>,
     ) -> anyhow::Result<usize> {
-        use crate::schema::indexer::events_character_created::dsl::*;
+        use crate::schema::indexer::events_location_revealed::dsl::*;
 
-        diesel::insert_into(events_character_created)
+        diesel::insert_into(events_location_revealed)
             .values(batch)
             .on_conflict((event_id, occurred_at))
             .do_nothing()
