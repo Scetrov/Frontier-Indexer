@@ -34,7 +34,7 @@ pub struct StoredStatusChanged {
 }
 
 impl StoredStatusChanged {
-    pub fn from_event(event: &Event, meta: EventMeta) -> Self {
+    pub fn from_event(event: &Event, meta: &EventMeta) -> Self {
         let move_event: MoveStatusChanged =
             bcs::from_bytes(&event.contents).expect("Failed to deserialize Status Changed event");
 
