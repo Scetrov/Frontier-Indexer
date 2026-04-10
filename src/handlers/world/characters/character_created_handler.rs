@@ -15,7 +15,7 @@ use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
 use crate::handlers::is_indexed_tx;
 use crate::handlers::EventMeta;
-use crate::models::StoredCharacterCreated;
+use crate::models::world::StoredCharacterCreated;
 
 use crate::AppEnv;
 

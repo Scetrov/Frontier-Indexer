@@ -21,7 +21,8 @@ use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
 use crate::handlers::is_indexed_tx;
-use crate::models::StoredAssembly;
+use crate::models::world::StoredAssembly;
+
 use crate::AppEnv;
 
 pub struct AssemblyHandler {

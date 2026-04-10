@@ -15,16 +15,16 @@ use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
 use crate::handlers::is_indexed_tx;
 use crate::handlers::EventMeta;
-use crate::models::StoredLocationRevealed;
+use crate::models::world::StoredAssemblyCreated;
 
 use crate::AppEnv;
 
-pub struct LocationRevealedHandler {
+pub struct AssemblyCreatedHandler {
     env: AppEnv,
     package_set: HashSet<AccountAddress>,
 }
 
-impl LocationRevealedHandler {
+impl AssemblyCreatedHandler {
     pub fn new(env: AppEnv) -> Self {
         let package_set: HashSet<AccountAddress> = env
             .get_world_package_strings()
@@ -35,9 +35,9 @@ impl LocationRevealedHandler {
         Self { env, package_set }
     }
 
-    fn is_location_revealed(&self, event: &Event) -> bool {
-        let module_name = "location";
-        let event_name = "LocationRevealedEvent";
+    fn is_assembly_created(&self, event: &Event) -> bool {
+        let module_name = "assembly";
+        let event_name = "AssemblyCreatedEvent";
 
         let tag = &event.type_;
 
@@ -58,9 +58,9 @@ impl LocationRevealedHandler {
 }
 
 #[async_trait]
-impl Processor for LocationRevealedHandler {
-    const NAME: &'static str = "location_revealed_handler";
-    type Value = StoredLocationRevealed;
+impl Processor for AssemblyCreatedHandler {
+    const NAME: &'static str = "assembly_created_handler";
+    type Value = StoredAssemblyCreated;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {
         let mut results = vec![];
@@ -75,9 +75,9 @@ impl Processor for LocationRevealedHandler {
             let base_meta = EventMeta::from_checkpoint_tx(checkpoint, tx);
 
             for (index, ev) in events.data.iter().enumerate() {
-                if self.is_location_revealed(ev) {
+                if self.is_assembly_created(ev) {
                     let meta = base_meta.with_index(index);
-                    let event = StoredLocationRevealed::from_event(ev, &meta);
+                    let event = StoredAssemblyCreated::from_event(ev, &meta);
                     results.push(event);
                 }
             }
@@ -88,7 +88,7 @@ impl Processor for LocationRevealedHandler {
 }
 
 #[async_trait]
-impl Handler for LocationRevealedHandler {
+impl Handler for AssemblyCreatedHandler {
     type Store = Db;
     type Batch = Vec<Self::Value>;
 
@@ -101,9 +101,9 @@ impl Handler for LocationRevealedHandler {
         batch: &Self::Batch,
         conn: &mut Connection<'a>,
     ) -> anyhow::Result<usize> {
-        use crate::schema::indexer::events_location_revealed::dsl::*;
+        use crate::schema::indexer::events_assembly_created::dsl::*;
 
-        diesel::insert_into(events_location_revealed)
+        diesel::insert_into(events_assembly_created)
             .values(batch)
             .on_conflict((event_id, occurred_at))
             .do_nothing()

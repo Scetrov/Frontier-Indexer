@@ -15,16 +15,16 @@ use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
 use crate::handlers::is_indexed_tx;
 use crate::handlers::EventMeta;
-use crate::models::StoredStatusChanged;
+use crate::models::world::StoredLocationRevealed;
 
 use crate::AppEnv;
 
-pub struct StatusChangedHandler {
+pub struct LocationRevealedHandler {
     env: AppEnv,
     package_set: HashSet<AccountAddress>,
 }
 
-impl StatusChangedHandler {
+impl LocationRevealedHandler {
     pub fn new(env: AppEnv) -> Self {
         let package_set: HashSet<AccountAddress> = env
             .get_world_package_strings()
@@ -35,9 +35,9 @@ impl StatusChangedHandler {
         Self { env, package_set }
     }
 
-    fn is_status_changed(&self, event: &Event) -> bool {
-        let module_name = "status";
-        let event_name = "StatusChangedEvent";
+    fn is_location_revealed(&self, event: &Event) -> bool {
+        let module_name = "location";
+        let event_name = "LocationRevealedEvent";
 
         let tag = &event.type_;
 
@@ -58,9 +58,9 @@ impl StatusChangedHandler {
 }
 
 #[async_trait]
-impl Processor for StatusChangedHandler {
-    const NAME: &'static str = "status_changed_handler";
-    type Value = StoredStatusChanged;
+impl Processor for LocationRevealedHandler {
+    const NAME: &'static str = "location_revealed_handler";
+    type Value = StoredLocationRevealed;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {
         let mut results = vec![];
@@ -75,9 +75,9 @@ impl Processor for StatusChangedHandler {
             let base_meta = EventMeta::from_checkpoint_tx(checkpoint, tx);
 
             for (index, ev) in events.data.iter().enumerate() {
-                if self.is_status_changed(ev) {
+                if self.is_location_revealed(ev) {
                     let meta = base_meta.with_index(index);
-                    let event = StoredStatusChanged::from_event(ev, &meta);
+                    let event = StoredLocationRevealed::from_event(ev, &meta);
                     results.push(event);
                 }
             }
@@ -88,7 +88,7 @@ impl Processor for StatusChangedHandler {
 }
 
 #[async_trait]
-impl Handler for StatusChangedHandler {
+impl Handler for LocationRevealedHandler {
     type Store = Db;
     type Batch = Vec<Self::Value>;
 
@@ -101,9 +101,9 @@ impl Handler for StatusChangedHandler {
         batch: &Self::Batch,
         conn: &mut Connection<'a>,
     ) -> anyhow::Result<usize> {
-        use crate::schema::indexer::events_status_changed::dsl::*;
+        use crate::schema::indexer::events_location_revealed::dsl::*;
 
-        diesel::insert_into(events_status_changed)
+        diesel::insert_into(events_location_revealed)
             .values(batch)
             .on_conflict((event_id, occurred_at))
             .do_nothing()

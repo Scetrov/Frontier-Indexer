@@ -64,21 +64,7 @@ impl EventMeta {
     }
 }
 
-// List of all handlers
 pub mod world;
-
-pub use world::access::owner_cap_created_handler::*;
-pub use world::access::owner_cap_handler::*;
-pub use world::access::owner_cap_transferred_handler::*;
-
-pub use world::assemblies::assembly_created_handler::*;
-pub use world::assemblies::assembly_handler::*;
-
-pub use world::characters::character_created_handler::*;
-pub use world::characters::character_handler::*;
-
-pub use world::primitives::location_revealed_handler::*;
-pub use world::primitives::status_changed_handler::*;
 
 pub(crate) fn is_indexed_tx(
     tx: &ExecutedTransaction,
