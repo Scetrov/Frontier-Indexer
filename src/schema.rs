@@ -155,6 +155,22 @@ pub mod indexer {
         }
     }
 
+    diesel::table! {
+        indexer.system_table_registry (table_id) {
+            #[max_length = 66]
+            table_id -> Varchar,
+            #[max_length = 66]
+            parent_id -> Varchar,
+            #[max_length = 66]
+            package_id -> Varchar,
+            module_name -> Text,
+            struct_name -> Text,
+            key_type -> Text,
+            value_type -> Text,
+            checkpoint_updated -> Int8,
+        }
+    }
+
     diesel::allow_tables_to_appear_in_same_query!(
         assemblies,
         characters,
@@ -165,5 +181,6 @@ pub mod indexer {
         events_owner_cap_transferred,
         events_status_changed,
         owner_caps,
+        system_table_registry,
     );
 }
