@@ -1,8 +1,10 @@
 use anyhow::Context;
 use clap::Parser;
+use indexer::models::system::table_registry::TableRegistry;
 use prometheus::Registry;
 use std::net::SocketAddr;
 use std::path::PathBuf;
+use std::sync::Arc;
 use tokio;
 use url::Url;
 
@@ -16,7 +18,7 @@ use sui_indexer_alt_metrics::db::DbConnectionStatsCollector;
 use sui_indexer_alt_metrics::{MetricsArgs, MetricsService};
 use sui_pg_db::{Db, DbArgs};
 
-use indexer::handlers::*;
+use indexer::{handlers::*, RegistryContext};
 use indexer::{AppEnv, TESTNET_REMOTE_STORE_URL};
 
 const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
@@ -202,6 +204,13 @@ async fn main() -> Result<(), anyhow::Error> {
         .await
         .context("Failed to connect to database")?;
 
+    let mut conn = store.connect().await?;
+    let table_registry = TableRegistry::load_from_db(&mut conn).await;
+
+    let context = RegistryContext {
+        tables: Arc::new(table_registry),
+    };
+
     store
         .run_migrations(Some(&MIGRATIONS))
         .await
@@ -213,7 +222,7 @@ async fn main() -> Result<(), anyhow::Error> {
     )))?;
 
     let mut indexer = Indexer::new(
-        store,
+        store.clone(),
         indexer_args,
         ClientArgs {
             ingestion: ingestion_args,

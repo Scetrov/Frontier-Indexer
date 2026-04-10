@@ -1,1 +1,1 @@
-DELETE TABLE IF EXISTS indexer._system_table_registry;
+DELETE TABLE IF EXISTS indexer.system_table_registry;

@@ -1,4 +1,7 @@
+use std::sync::Arc;
 use url::Url;
+
+use crate::models::system::table_registry::TableRegistry;
 
 pub mod handlers;
 pub(crate) mod models;
@@ -185,6 +188,11 @@ pub fn get_world_package_address(env: AppEnv) -> Result<&'static str, String> {
         The world package has not been deployed on this network.",
         env
     ))
+}
+
+#[derive(Clone)]
+pub struct RegistryContext {
+    pub tables: Arc<TableRegistry>,
 }
 
 #[derive(Debug, Clone, Copy, clap::ValueEnum)]
