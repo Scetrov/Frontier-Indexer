@@ -4,7 +4,7 @@ use url::Url;
 use crate::models::system::table_registry::TableRegistry;
 
 pub mod handlers;
-pub(crate) mod models;
+pub mod models;
 pub mod sandbox;
 pub mod schema;
 
@@ -195,6 +195,16 @@ pub enum AppEnv {
     Testnet,
 }
 
+impl AppEnv {
+    pub fn remote_store_url(&self) -> Url {
+        let url = match self {
+            AppEnv::Mainnet => MAINNET_REMOTE_STORE_URL,
+            AppEnv::Testnet => TESTNET_REMOTE_STORE_URL,
+        };
+        Url::parse(url).unwrap()
+    }
+}
+
 #[derive(Clone)]
 pub struct AppContext {
     pub env: AppEnv,
@@ -202,14 +212,6 @@ pub struct AppContext {
 }
 
 impl AppContext {
-    pub fn remote_store_url(&self) -> Url {
-        let url = match self.env {
-            AppEnv::Mainnet => MAINNET_REMOTE_STORE_URL,
-            AppEnv::Testnet => TESTNET_REMOTE_STORE_URL,
-        };
-        Url::parse(url).unwrap()
-    }
-
     /// Get app package addresses for this environment
     pub fn get_app_package_strings(&self) -> Vec<&str> {
         // If sandbox mode is active, both overrides are set together by init_package_override
