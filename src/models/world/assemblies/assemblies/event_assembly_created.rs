@@ -1,4 +1,4 @@
-use chrono::DateTime;
+use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::Deserialize;
 
@@ -23,7 +23,7 @@ pub struct MoveAssemblyCreated {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct StoredAssemblyCreated {
     event_id: String,
-    occurred_at: DateTime<chrono::Utc>,
+    occurred_at: DateTime<Utc>,
     id: String,
     item_id: String,
     tenant: String,
