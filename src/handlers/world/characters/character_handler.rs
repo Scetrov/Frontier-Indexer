@@ -23,22 +23,22 @@ use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 use crate::handlers::is_indexed_tx;
 use crate::models::world::StoredCharacter;
 
-use crate::AppEnv;
+use crate::AppContext;
 
 pub struct CharacterHandler {
-    env: AppEnv,
+    ctx: AppContext,
     package_set: HashSet<AccountAddress>,
 }
 
 impl CharacterHandler {
-    pub fn new(env: AppEnv) -> Self {
-        let package_set: HashSet<AccountAddress> = env
+    pub fn new(ctx: AppContext) -> Self {
+        let package_set: HashSet<AccountAddress> = ctx
             .get_world_package_strings()
             .iter()
             .filter_map(|s| AccountAddress::from_str(s).ok())
             .collect();
 
-        Self { env, package_set }
+        Self { ctx, package_set }
     }
 
     fn is_character(&self, obj: &Object) -> bool {
@@ -83,7 +83,7 @@ impl Processor for CharacterHandler {
         let cp_sequence = checkpoint.summary.sequence_number as i64;
 
         for tx in &checkpoint.transactions {
-            if !is_indexed_tx(tx, &checkpoint.object_set, self.env) {
+            if !is_indexed_tx(tx, &checkpoint.object_set, &self.ctx) {
                 continue;
             }
 

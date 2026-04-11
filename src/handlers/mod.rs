@@ -1,14 +1,16 @@
-use crate::AppEnv;
 use std::sync::Arc;
-use sui_indexer_alt_framework::types::full_checkpoint_content::{
-    Checkpoint, ExecutedTransaction, ObjectSet,
-};
+
+use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
+use sui_indexer_alt_framework::types::full_checkpoint_content::ExecutedTransaction;
+use sui_indexer_alt_framework::types::full_checkpoint_content::ObjectSet;
+
 use sui_types::effects::TransactionEffectsAPI;
 use sui_types::transaction::{Command, TransactionDataAPI};
 
 pub mod app;
-pub mod system;
 pub mod world;
+
+use crate::AppContext;
 
 /// Captures common transaction metadata for event processing.
 pub struct EventMeta {
@@ -71,10 +73,10 @@ impl EventMeta {
 pub(crate) fn is_indexed_tx(
     tx: &ExecutedTransaction,
     checkpoint_objects: &ObjectSet,
-    env: AppEnv,
+    ctx: &AppContext,
 ) -> bool {
-    let app_addresses = env.package_addresses();
-    let app_packages = env.package_ids();
+    let app_addresses = ctx.package_addresses();
+    let app_packages = ctx.package_ids();
 
     // Check input object against all known package versions
     let has_app_input = tx.input_objects(checkpoint_objects).any(|obj| {

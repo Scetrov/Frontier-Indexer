@@ -18,7 +18,7 @@ use sui_indexer_alt_metrics::db::DbConnectionStatsCollector;
 use sui_indexer_alt_metrics::{MetricsArgs, MetricsService};
 use sui_pg_db::{Db, DbArgs};
 
-use indexer::{handlers::*, RegistryContext};
+use indexer::{handlers::*, AppContext};
 use indexer::{AppEnv, TESTNET_REMOTE_STORE_URL};
 
 const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
@@ -207,7 +207,8 @@ async fn main() -> Result<(), anyhow::Error> {
     let mut conn = store.connect().await?;
     let table_registry = TableRegistry::load_from_db(&mut conn).await;
 
-    let context = RegistryContext {
+    let context = AppContext {
+        env,
         tables: Arc::new(table_registry),
     };
 
@@ -241,63 +242,63 @@ async fn main() -> Result<(), anyhow::Error> {
             Package::World => {
                 indexer
                     .sequential_pipeline(
-                        world::OwnerCapCreatedHandler::new(env),
+                        world::OwnerCapCreatedHandler::new(context),
                         Default::default(),
                     )
                     .await?;
 
                 indexer
                     .sequential_pipeline(
-                        world::OwnerCapTransferredHandler::new(env),
+                        world::OwnerCapTransferredHandler::new(context),
                         Default::default(),
                     )
                     .await?;
 
                 indexer
                     .sequential_pipeline(
-                        world::OwnerCapHandler::new(env),
+                        world::OwnerCapHandler::new(context),
                         Default::default()
                     )
                     .await?;
 
                 indexer
                     .sequential_pipeline(
-                        world::AssemblyHandler::new(env),
+                        world::AssemblyHandler::new(context),
                         Default::default()
                     )
                     .await?;
 
                 indexer
                     .sequential_pipeline(
-                        world::AssemblyCreatedHandler::new(env),
+                        world::AssemblyCreatedHandler::new(context),
                         Default::default(),
                     )
                     .await?;
 
                 indexer
                     .sequential_pipeline(
-                        world::CharacterHandler::new(env),
+                        world::CharacterHandler::new(context),
                         Default::default()
                     )
                     .await?;
 
                 indexer
                     .sequential_pipeline(
-                        world::CharacterCreatedHandler::new(env),
+                        world::CharacterCreatedHandler::new(context),
                         Default::default(),
                     )
                     .await?;
 
                 indexer
                     .sequential_pipeline(
-                        world::LocationRevealedHandler::new(env),
+                        world::LocationRevealedHandler::new(context),
                         Default::default(),
                     )
                     .await?;
 
                 indexer
                     .sequential_pipeline(
-                        world::StatusChangedHandler::new(env),
+                        world::StatusChangedHandler::new(context),
                         Default::default()
                     )
                     .await?;

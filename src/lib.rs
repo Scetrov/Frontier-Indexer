@@ -7,7 +7,6 @@ pub mod handlers;
 pub(crate) mod models;
 pub mod sandbox;
 pub mod schema;
-pub mod traits;
 
 pub const NOT_MAINNET_PACKAGE: &str = "<not on mainnet>";
 
@@ -190,20 +189,21 @@ pub fn get_world_package_address(env: AppEnv) -> Result<&'static str, String> {
     ))
 }
 
-#[derive(Clone)]
-pub struct RegistryContext {
-    pub tables: Arc<TableRegistry>,
-}
-
 #[derive(Debug, Clone, Copy, clap::ValueEnum)]
 pub enum AppEnv {
     Mainnet,
     Testnet,
 }
 
-impl AppEnv {
+#[derive(Clone)]
+pub struct AppContext {
+    pub env: AppEnv,
+    pub tables: Arc<TableRegistry>,
+}
+
+impl AppContext {
     pub fn remote_store_url(&self) -> Url {
-        let url = match self {
+        let url = match self.env {
             AppEnv::Mainnet => MAINNET_REMOTE_STORE_URL,
             AppEnv::Testnet => TESTNET_REMOTE_STORE_URL,
         };
@@ -218,7 +218,7 @@ impl AppEnv {
             return app.to_vec();
         }
 
-        let app_packages = match self {
+        let app_packages = match self.env {
             AppEnv::Mainnet => MAINNET_PACKAGES,
             AppEnv::Testnet => TESTNET_PACKAGES,
         };
@@ -234,7 +234,7 @@ impl AppEnv {
             return world.to_vec();
         }
 
-        let world_packages = match self {
+        let world_packages = match self.env {
             AppEnv::Mainnet => MAINNET_WORLD_PACKAGES,
             AppEnv::Testnet => TESTNET_WORLD_PACKAGES,
         };
@@ -252,7 +252,7 @@ impl AppEnv {
             return all;
         }
 
-        let (app_packages, world_packages) = match self {
+        let (app_packages, world_packages) = match self.env {
             AppEnv::Mainnet => (MAINNET_PACKAGES, MAINNET_WORLD_PACKAGES),
             AppEnv::Testnet => (TESTNET_PACKAGES, TESTNET_WORLD_PACKAGES),
         };

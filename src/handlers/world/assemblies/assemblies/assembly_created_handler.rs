@@ -17,22 +17,22 @@ use crate::handlers::is_indexed_tx;
 use crate::handlers::EventMeta;
 use crate::models::world::StoredAssemblyCreated;
 
-use crate::AppEnv;
+use crate::AppContext;
 
 pub struct AssemblyCreatedHandler {
-    env: AppEnv,
+    ctx: AppContext,
     package_set: HashSet<AccountAddress>,
 }
 
 impl AssemblyCreatedHandler {
-    pub fn new(env: AppEnv) -> Self {
-        let package_set: HashSet<AccountAddress> = env
+    pub fn new(ctx: AppContext) -> Self {
+        let package_set: HashSet<AccountAddress> = ctx
             .get_world_package_strings()
             .iter()
             .filter_map(|s| AccountAddress::from_str(s).ok())
             .collect();
 
-        Self { env, package_set }
+        Self { ctx, package_set }
     }
 
     fn is_assembly_created(&self, event: &Event) -> bool {
@@ -66,7 +66,7 @@ impl Processor for AssemblyCreatedHandler {
         let mut results = vec![];
 
         for tx in &checkpoint.transactions {
-            if !is_indexed_tx(tx, &checkpoint.object_set, self.env) {
+            if !is_indexed_tx(tx, &checkpoint.object_set, &self.ctx) {
                 continue;
             }
 
