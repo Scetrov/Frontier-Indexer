@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use move_core_types::account_address::AccountAddress;
-use std::collections::HashSet;
+use std::collections::hash_map::Entry;
+use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -136,19 +137,36 @@ impl Handler for CharacterHandler {
     ) -> anyhow::Result<usize> {
         use crate::schema::indexer::characters::dsl::*;
 
-        let mut to_upsert = Vec::new();
+        let mut upsert_map: HashMap<String, &StoredCharacter> = HashMap::new();
         let mut to_delete = Vec::new();
 
         for action in batch {
             match action {
-                CharacterAction::Upsert(character) => to_upsert.push(character),
+                CharacterAction::Upsert(character) => {
+                    let entry = upsert_map.entry(character.id.clone());
+                    match entry {
+                        Entry::Occupied(mut entry) => {
+                            if character.checkpoint_updated > entry.get().checkpoint_updated {
+                                entry.insert(character);
+                            }
+                        }
+                        Entry::Vacant(entry) => {
+                            entry.insert(character);
+                        }
+                    }
+                }
                 CharacterAction::Delete(id_str) => to_delete.push(id_str.clone()),
             }
         }
 
-        if !to_upsert.is_empty() {
+        // Remove any updates for which deletions exist.
+        upsert_map.retain(|obj_id, _| !to_delete.contains(obj_id));
+
+        let final_values: Vec<&StoredCharacter> = upsert_map.into_values().collect();
+
+        if !final_values.is_empty() {
             diesel::insert_into(characters)
-                .values(to_upsert)
+                .values(final_values)
                 .on_conflict(id)
                 .do_update()
                 .set((

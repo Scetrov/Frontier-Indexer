@@ -1,4 +1,4 @@
-use chrono::DateTime;
+use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::Deserialize;
 
@@ -20,7 +20,7 @@ pub struct MoveOwnerCapCreated {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct StoredOwnerCapCreated {
     pub event_id: String,
-    pub occurred_at: DateTime<chrono::Utc>,
+    pub occurred_at: DateTime<Utc>,
     pub id: String,
     pub object_id: String,
 }

@@ -1,4 +1,4 @@
-use chrono::DateTime;
+use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::Deserialize;
 
@@ -23,7 +23,7 @@ pub struct MoveCharacterCreated {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct StoredCharacterCreated {
     pub event_id: String,
-    pub occurred_at: chrono::DateTime<chrono::Utc>,
+    pub occurred_at: DateTime<Utc>,
     pub id: String,
     pub item_id: String,
     pub tenant: String,
