@@ -38,7 +38,10 @@ impl OwnerCapHandler {
             .filter_map(|s| AccountAddress::from_str(s).ok())
             .collect();
 
-        Self { ctx: ctx.clone(), package_set }
+        Self {
+            ctx: ctx.clone(),
+            package_set,
+        }
     }
 
     fn is_owner_cap(&self, obj: &Object) -> bool {
@@ -176,6 +179,12 @@ impl Handler for OwnerCapHandler {
         }
 
         // Deletions happen last incase an object was updated before deletion.
+        if !to_delete.is_empty() {
+            diesel::delete(owner_caps)
+                .filter(id.eq_any(to_delete))
+                .execute(conn)
+                .await?;
+        }
 
         Ok(batch.len())
     }
