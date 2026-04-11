@@ -1,6 +1,5 @@
 use anyhow::Context;
 use clap::Parser;
-use indexer::models::system::table_registry::TableRegistry;
 use prometheus::Registry;
 use std::net::SocketAddr;
 use std::path::PathBuf;
@@ -18,6 +17,7 @@ use sui_indexer_alt_metrics::db::DbConnectionStatsCollector;
 use sui_indexer_alt_metrics::{MetricsArgs, MetricsService};
 use sui_pg_db::{Db, DbArgs};
 
+use indexer::models::system::table_registry::TableRegistry;
 use indexer::{handlers::*, AppContext};
 use indexer::{AppEnv, TESTNET_REMOTE_STORE_URL};
 
@@ -204,6 +204,11 @@ async fn main() -> Result<(), anyhow::Error> {
         .await
         .context("Failed to connect to database")?;
 
+    store
+        .run_migrations(Some(&MIGRATIONS))
+        .await
+        .context("Failed to run pending migrations.")?;
+
     let mut conn = store.connect().await?;
     let table_registry = TableRegistry::load_from_db(&mut conn).await;
 
@@ -211,11 +216,6 @@ async fn main() -> Result<(), anyhow::Error> {
         env,
         tables: Arc::new(table_registry),
     };
-
-    store
-        .run_migrations(Some(&MIGRATIONS))
-        .await
-        .context("Failed to run pending migrations.")?;
 
     registry.register(Box::new(DbConnectionStatsCollector::new(
         Some("frontier_indexer_db"),
@@ -242,64 +242,62 @@ async fn main() -> Result<(), anyhow::Error> {
             Package::World => {
                 indexer
                     .sequential_pipeline(
-                        world::OwnerCapCreatedHandler::new(context),
+                        world::EnergyConfigHandler::new(&context),
                         Default::default(),
                     )
                     .await?;
 
                 indexer
                     .sequential_pipeline(
-                        world::OwnerCapTransferredHandler::new(context),
+                        world::OwnerCapCreatedHandler::new(&context),
                         Default::default(),
                     )
                     .await?;
 
                 indexer
                     .sequential_pipeline(
-                        world::OwnerCapHandler::new(context),
-                        Default::default()
+                        world::OwnerCapTransferredHandler::new(&context),
+                        Default::default(),
                     )
                     .await?;
 
                 indexer
-                    .sequential_pipeline(
-                        world::AssemblyHandler::new(context),
-                        Default::default()
-                    )
+                    .sequential_pipeline(world::OwnerCapHandler::new(&context), Default::default())
+                    .await?;
+
+                indexer
+                    .sequential_pipeline(world::AssemblyHandler::new(&context), Default::default())
                     .await?;
 
                 indexer
                     .sequential_pipeline(
-                        world::AssemblyCreatedHandler::new(context),
+                        world::AssemblyCreatedHandler::new(&context),
+                        Default::default(),
+                    )
+                    .await?;
+
+                indexer
+                    .sequential_pipeline(world::CharacterHandler::new(&context), Default::default())
+                    .await?;
+
+                indexer
+                    .sequential_pipeline(
+                        world::CharacterCreatedHandler::new(&context),
                         Default::default(),
                     )
                     .await?;
 
                 indexer
                     .sequential_pipeline(
-                        world::CharacterHandler::new(context),
-                        Default::default()
-                    )
-                    .await?;
-
-                indexer
-                    .sequential_pipeline(
-                        world::CharacterCreatedHandler::new(context),
+                        world::LocationRevealedHandler::new(&context),
                         Default::default(),
                     )
                     .await?;
 
                 indexer
                     .sequential_pipeline(
-                        world::LocationRevealedHandler::new(context),
+                        world::StatusChangedHandler::new(&context),
                         Default::default(),
-                    )
-                    .await?;
-
-                indexer
-                    .sequential_pipeline(
-                        world::StatusChangedHandler::new(context),
-                        Default::default()
                     )
                     .await?;
             }
