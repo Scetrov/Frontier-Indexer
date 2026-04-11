@@ -1,7 +1,6 @@
 use async_trait::async_trait;
 use move_core_types::account_address::AccountAddress;
-use std::collections::hash_map::Entry;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -80,7 +79,7 @@ impl Processor for CharacterHandler {
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {
         let mut results = vec![];
-        let cp_sequence = checkpoint.summary.sequence_number as i64;
+        let checkpoint_updated = checkpoint.summary.sequence_number as i64;
 
         for tx in &checkpoint.transactions {
             if !is_indexed_tx(tx, &checkpoint.object_set, &self.ctx) {
@@ -92,15 +91,19 @@ impl Processor for CharacterHandler {
 
                 match change.id_operation {
                     IDOperation::Created | IDOperation::None => {
-                        if let Some(version) = change.output_version {
-                            let key = ObjectKey(object_id, version);
+                        let Some(version) = change.output_version else {
+                            continue;
+                        };
 
-                            if let Some(obj) = checkpoint.object_set.get(&key) {
-                                if self.is_character(obj) {
-                                    let character = StoredCharacter::from_object(obj, cp_sequence);
-                                    results.push(CharacterAction::Upsert(character));
-                                }
-                            }
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_character(obj) {
+                            let character = StoredCharacter::from_object(obj, checkpoint_updated);
+                            results.push(CharacterAction::Upsert(character));
                         }
                     }
                     IDOperation::Deleted => {
@@ -130,65 +133,52 @@ impl Handler for CharacterHandler {
     ) -> anyhow::Result<usize> {
         use crate::schema::indexer::characters::dsl::*;
 
-        let mut upsert_map: HashMap<String, &StoredCharacter> = HashMap::new();
+        let mut to_upsert = Vec::new();
         let mut to_delete = Vec::new();
 
         for action in batch {
             match action {
-                CharacterAction::Upsert(character) => {
-                    let entry = upsert_map.entry(character.id.clone());
-
-                    match entry {
-                        Entry::Occupied(mut entry) => {
-                            if character.checkpoint_updated > entry.get().checkpoint_updated {
-                                entry.insert(character);
-                            }
-                        }
-                        Entry::Vacant(entry) => {
-                            entry.insert(character);
-                        }
-                    }
-                }
+                CharacterAction::Upsert(character) => to_upsert.push(character),
                 CharacterAction::Delete(id_str) => to_delete.push(id_str.clone()),
             }
         }
 
-        // Remove any updates for which deletions exist.
-        upsert_map.retain(|obj_id, _| !to_delete.contains(obj_id));
+        conn.build_transaction()
+            .read_write()
+            .run::<usize, anyhow::Error, _>(|tx_conn| {
+                Box::pin(async move {
+                    if !to_upsert.is_empty() {
+                        diesel::insert_into(characters)
+                            .values(to_upsert)
+                            .on_conflict(id)
+                            .do_update()
+                            .set((
+                                item_id.eq(excluded(item_id)),
+                                tenant.eq(excluded(tenant)),
+                                owner_cap_id.eq(excluded(owner_cap_id)),
+                                owner_address.eq(excluded(owner_address)),
+                                tribe_id.eq(excluded(tribe_id)),
+                                name.eq(excluded(name)),
+                                description.eq(excluded(description)),
+                                url.eq(excluded(url)),
+                                checkpoint_updated.eq(excluded(checkpoint_updated)),
+                            ))
+                            .filter(checkpoint_updated.lt(excluded(checkpoint_updated)))
+                            .execute(tx_conn)
+                            .await?;
+                    }
 
-        let final_values: Vec<&StoredCharacter> = upsert_map.into_values().collect();
+                    // Deletions happen last incase an object was updated before deletion.
+                    if !to_delete.is_empty() {
+                        diesel::delete(characters)
+                            .filter(id.eq_any(to_delete))
+                            .execute(tx_conn)
+                            .await?;
+                    }
 
-        if !final_values.is_empty() {
-            diesel::insert_into(characters)
-                .values(final_values)
-                .on_conflict(id)
-                .do_update()
-                .set((
-                    item_id.eq(excluded(item_id)),
-                    tenant.eq(excluded(tenant)),
-                    owner_cap_id.eq(excluded(owner_cap_id)),
-                    owner_address.eq(excluded(owner_address)),
-                    tribe_id.eq(excluded(tribe_id)),
-                    name.eq(excluded(name)),
-                    description.eq(excluded(description)),
-                    url.eq(excluded(url)),
-                    checkpoint_updated.eq(excluded(checkpoint_updated)),
-                ))
-                .filter(checkpoint_updated.lt(excluded(checkpoint_updated)))
-                .execute(conn)
-                .await?;
-        }
-
-        // Deletions happen last incase an object was updated before deletion.
-        if !to_delete.is_empty() {
-            diesel::delete(characters)
-                .filter(id.eq_any(to_delete))
-                .execute(conn)
-                .await?;
-        }
-
-        // Todo: Broadcast events for all of the above entry changes via websocket.
-
-        Ok(batch.len())
+                    Ok(batch.len())
+                })
+            })
+            .await
     }
 }
