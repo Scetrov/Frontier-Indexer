@@ -52,7 +52,7 @@ pub use primitives::fuel::event_fuel_effciency_set::*;
 pub use primitives::fuel::event_fuel_efficiency_removed::*;
 pub use primitives::fuel::fuel::*;
 pub use primitives::fuel::fuel_config::*;
-pub use primitives::fuel::fuel_events::*;
+pub use primitives::fuel::event_fuel::*;
 
 pub use primitives::inventories::event_item_burned::*;
 pub use primitives::inventories::event_item_deposited::*;
