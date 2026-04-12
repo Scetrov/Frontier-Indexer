@@ -109,6 +109,19 @@ pub mod indexer {
     }
 
     diesel::table! {
+        indexer.events_energy_released (event_id, occurred_at) {
+            #[max_length = 100]
+            event_id -> Varchar,
+            occurred_at -> Timestamptz,
+            #[max_length = 66]
+            id -> Varchar,
+            type_id -> Int8,
+            released -> Int8,
+            reserved_total -> Int8,
+        }
+    }
+
+    diesel::table! {
         indexer.events_location_revealed (event_id, occurred_at) {
             #[max_length = 100]
             event_id -> Varchar,
@@ -213,6 +226,7 @@ pub mod indexer {
         events_character_created,
         events_energy_production_started,
         events_energy_production_stopped,
+        events_energy_released,
         events_location_revealed,
         events_owner_cap_created,
         events_owner_cap_transferred,
