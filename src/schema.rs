@@ -152,6 +152,23 @@ pub mod indexer {
     }
 
     diesel::table! {
+        indexer.events_fuel_burning_stopped (event_id, occurred_at) {
+            #[max_length = 100]
+            event_id -> Varchar,
+            occurred_at -> Timestamptz,
+            #[max_length = 66]
+            id -> Varchar,
+            #[max_length = 20]
+            item_id -> Varchar,
+            tenant -> Text,
+            type_id -> Int8,
+            quantity_old -> Int8,
+            quantity_new -> Int8,
+            burning -> Bool,
+        }
+    }
+
+    diesel::table! {
         indexer.events_fuel_efficiency_removed (event_id, occurred_at) {
             #[max_length = 100]
             event_id -> Varchar,
@@ -291,6 +308,7 @@ pub mod indexer {
         events_energy_released,
         events_energy_reserved,
         events_fuel_burning_started,
+        events_fuel_burning_stopped,
         events_fuel_efficiency_removed,
         events_fuel_efficiency_set,
         events_location_revealed,
