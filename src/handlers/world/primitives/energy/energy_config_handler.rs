@@ -96,8 +96,8 @@ impl EnergyConfigHandler {
         let owner_id = owner_str.to_string();
 
         // Check the entry against tables added in the same checkpoint.
-        if table_updates.contains_key(&owner_id) {
-            Some(table_updates.get(&owner_id).as_ref());
+        if let Some(table) = table_updates.get(&owner_id) {
+            return Some(table.clone());
         }
 
         // Check the entry against the table registry.
