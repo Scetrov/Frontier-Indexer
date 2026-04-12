@@ -22,7 +22,8 @@ use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
 use crate::handlers::is_indexed_tx;
-use crate::models::system::{MoveEnergyConfig, StoredTableRecord};
+use crate::models::system::StoredTableRecord;
+use crate::models::world::MoveEnergyConfig;
 use crate::models::world::StoredEnergyConfig;
 use crate::AppContext;
 

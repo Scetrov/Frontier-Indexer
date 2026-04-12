@@ -1,11 +1,21 @@
+use serde::Deserialize;
+
 use diesel::prelude::*;
 
+use sui_sdk_types::Address;
+
 use sui_indexer_alt_framework::FieldCount;
+use sui_types::collection_types::Table;
 use sui_types::dynamic_field::Field;
 use sui_types::object::Object;
 
 use crate::schema::indexer::energy_config;
 
+#[derive(Deserialize)]
+pub struct MoveEnergyConfig {
+    pub id: Address,
+    pub assembly_energy: Table,
+}
 #[derive(Insertable, Debug, Clone, FieldCount)]
 #[diesel(table_name = energy_config)]
 pub struct StoredEnergyConfig {
