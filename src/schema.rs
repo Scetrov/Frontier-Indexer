@@ -135,6 +135,16 @@ pub mod indexer {
     }
 
     diesel::table! {
+        indexer.events_fuel_efficiency_set (event_id, occurred_at) {
+            #[max_length = 100]
+            event_id -> Varchar,
+            occurred_at -> Timestamptz,
+            type_id -> Int8,
+            efficiency -> Int8,
+        }
+    }
+
+    diesel::table! {
         indexer.events_location_revealed (event_id, occurred_at) {
             #[max_length = 100]
             event_id -> Varchar,
@@ -241,6 +251,7 @@ pub mod indexer {
         events_energy_production_stopped,
         events_energy_released,
         events_energy_reserved,
+        events_fuel_efficiency_set,
         events_location_revealed,
         events_owner_cap_created,
         events_owner_cap_transferred,
