@@ -15,7 +15,9 @@ use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
 use crate::handlers::is_indexed_tx;
 use crate::handlers::EventMeta;
-use crate::models::world::{MoveFuelAction, MoveFuelEvent, StoredFuelBurningStarted};
+use crate::models::world::MoveFuelAction;
+use crate::models::world::MoveFuelEvent;
+use crate::models::world::StoredFuelBurningStarted;
 
 use crate::AppContext;
 
