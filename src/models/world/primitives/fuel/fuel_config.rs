@@ -1,0 +1,35 @@
+use diesel::prelude::*;
+
+use sui_indexer_alt_framework::FieldCount;
+use sui_types::dynamic_field::Field;
+use sui_types::object::Object;
+
+use crate::schema::indexer::fuel_config;
+
+#[derive(Insertable, Debug, Clone, FieldCount)]
+#[diesel(table_name = fuel_config)]
+pub struct StoredFuelConfig {
+    pub table_id: String,
+    pub type_id: String,
+    pub efficiency: i64,
+    pub entry_object_id: String,
+    pub checkpoint_updated: i64,
+}
+
+impl StoredFuelConfig {
+    pub fn from_object(obj: &Object, table_id: String, checkpoint_updated: i64) -> Self {
+        let move_obj = obj.data.try_as_move().expect("Object is not a Move object");
+        let bytes = move_obj.contents();
+
+        let entry: Field<u64, u64> =
+            bcs::from_bytes(bytes).expect("Failed to deserialize Fuel Config object");
+
+        Self {
+            table_id,
+            type_id: entry.name.to_string(),
+            efficiency: entry.value as i64,
+            entry_object_id: obj.id().to_string(),
+            checkpoint_updated,
+        }
+    }
+}
