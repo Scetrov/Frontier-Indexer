@@ -20,7 +20,7 @@ pub struct MoveEnergyReleased {
 #[derive(Insertable, Debug, Clone, FieldCount)]
 #[diesel(table_name = events_energy_released)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct StoredEnergyRelease {
+pub struct StoredEnergyReleased {
     event_id: String,
     occurred_at: DateTime<Utc>,
     id: String,
@@ -29,7 +29,7 @@ pub struct StoredEnergyRelease {
     reserved_total: i64,
 }
 
-impl StoredEnergyRelease {
+impl StoredEnergyReleased {
     pub fn from_event(event: &Event, meta: &EventMeta) -> Self {
         let move_event: MoveEnergyReleased =
             bcs::from_bytes(&event.contents).expect("Failed to deserialize Energy Released event");
