@@ -51,7 +51,6 @@ pub use primitives::fuel::fuel_config_handler::*;
 pub use primitives::fuel::fuel_efficiency_removed_handler::*;
 pub use primitives::fuel::fuel_efficiency_set_handler::*;
 pub use primitives::fuel::fuel_event_handler::*;
-pub use primitives::fuel::fuel_handler::*;
 
 pub use primitives::inventories::inventory_entry_handlers::*;
 pub use primitives::inventories::inventory_handler::*;
