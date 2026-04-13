@@ -394,6 +394,32 @@ pub mod indexer {
         }
     }
 
+    diesel::table! {
+        indexer.turrets (id) {
+            #[max_length = 66]
+            id -> Varchar,
+            #[max_length = 20]
+            item_id -> Varchar,
+            tenant -> Text,
+            type_id -> Int8,
+            #[max_length = 66]
+            owner_cap_id -> Varchar,
+            #[max_length = 66]
+            location -> Varchar,
+            status -> Text,
+            #[max_length = 66]
+            energy_source_id -> Nullable<Varchar>,
+            name -> Nullable<Text>,
+            description -> Nullable<Text>,
+            url -> Nullable<Text>,
+            #[max_length = 66]
+            package_id -> Nullable<Varchar>,
+            module_name -> Nullable<Text>,
+            struct_name -> Nullable<Text>,
+            checkpoint_updated -> Int8,
+        }
+    }
+
     diesel::allow_tables_to_appear_in_same_query!(
         assemblies,
         characters,
@@ -421,5 +447,6 @@ pub mod indexer {
         killmails,
         owner_caps,
         system_table_registry,
+        turrets,
     );
 }
