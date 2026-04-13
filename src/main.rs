@@ -37,7 +37,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let AppConfig {
         metrics_address,
         db_config,
-        indexer_config,
+        indexer,
         sequential,
         ingestion,
         network,
@@ -78,9 +78,9 @@ async fn main() -> Result<(), anyhow::Error> {
         first_checkpoint,
         last_checkpoint,
         pipeline,
-    } = indexer_config;
+    } = indexer;
 
-    let indexer_args = IndexerArgs {
+    let indexer = IndexerArgs {
         first_checkpoint,
         last_checkpoint,
         pipeline,
@@ -125,7 +125,7 @@ async fn main() -> Result<(), anyhow::Error> {
         streaming_statement_timeout_ms,
     } = ingestion;
 
-    let ingestion_config = IngestionConfig {
+    let ingestion = IngestionConfig {
         checkpoint_buffer_size,
         retry_interval_ms,
         streaming_backoff_initial_batch_size,
@@ -214,9 +214,9 @@ async fn main() -> Result<(), anyhow::Error> {
 
     let mut indexer = Indexer::new(
         store.clone(),
-        indexer_args,
+        indexer,
         client_args,
-        ingestion_config,
+        ingestion,
         None,
         metrics.registry(),
     )
