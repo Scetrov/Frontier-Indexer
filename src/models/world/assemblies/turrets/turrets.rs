@@ -1,9 +1,7 @@
 use serde::Deserialize;
-use std::str::FromStr;
 
 use diesel::prelude::*;
 
-use move_core_types::language_storage::StructTag;
 use sui_indexer_alt_framework::FieldCount;
 use sui_sdk_types::Address;
 use sui_types::object::Object;
@@ -74,19 +72,7 @@ impl StoredTurret {
 
         let (package_id, module_name, struct_name) = match turret.extension {
             Some(extension) => {
-                let type_name = if !extension.name.starts_with("0x") {
-                    format!("0x{}", extension.name)
-                } else {
-                    extension.name
-                };
-
-                let tag = StructTag::from_str(&type_name)
-                    .expect("Could not parse TypeName into StructTag");
-
-                let package_id = tag.address.to_canonical_string(true);
-                let module_name = tag.module.to_string();
-                let struct_name = tag.name.to_string();
-
+                let (package_id, module_name, struct_name) = extension.to_components();
                 (Some(package_id), Some(module_name), Some(struct_name))
             }
             None => (None, None, None),
