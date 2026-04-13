@@ -38,7 +38,6 @@ pub use assemblies::turrets::turret_handler::*;
 pub use characters::character_created_handler::*;
 pub use characters::character_handler::*;
 
-pub use killmails::killmail_created_handler::*;
 pub use killmails::killmail_handler::*;
 
 pub use primitives::energy::energy_config_handler::*;

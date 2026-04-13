@@ -38,7 +38,6 @@ pub use assemblies::turrets::turrets::*;
 pub use characters::characters::*;
 pub use characters::event_character_created::*;
 
-pub use killmails::event_killmail_created::*;
 pub use killmails::killmails::*;
 
 pub use primitives::energy::energy_config::*;
