@@ -309,7 +309,6 @@ pub mod indexer {
             id -> Varchar,
             #[max_length = 20]
             item_id -> Varchar,
-            tenant -> Text,
             status -> Text,
             action -> Text,
         }
