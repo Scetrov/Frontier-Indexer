@@ -34,7 +34,8 @@ pub mod indexer {
             owner_cap_id -> Varchar,
             #[max_length = 66]
             owner_address -> Varchar,
-            tribe_id -> Int8,
+            #[max_length = 20]
+            tribe_id -> Varchar,
             name -> Text,
             description -> Nullable<Text>,
             url -> Nullable<Text>,
