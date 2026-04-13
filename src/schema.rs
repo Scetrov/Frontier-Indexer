@@ -315,6 +315,22 @@ pub mod indexer {
     }
 
     diesel::table! {
+        indexer.events_turret_created (event_id, occurred_at) {
+            #[max_length = 100]
+            event_id -> Varchar,
+            occurred_at -> Timestamptz,
+            #[max_length = 66]
+            id -> Varchar,
+            #[max_length = 20]
+            item_id -> Varchar,
+            tenant -> Text,
+            type_id -> Int8,
+            #[max_length = 66]
+            owner_cap_id -> Varchar,
+        }
+    }
+
+    diesel::table! {
         indexer.fuel_config (type_id, table_id) {
             #[max_length = 66]
             table_id -> Varchar,
@@ -400,6 +416,7 @@ pub mod indexer {
         events_owner_cap_created,
         events_owner_cap_transferred,
         events_status_changed,
+        events_turret_created,
         fuel_config,
         killmails,
         owner_caps,
