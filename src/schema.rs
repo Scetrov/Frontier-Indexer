@@ -330,14 +330,19 @@ pub mod indexer {
         indexer.killmails (id, occurred_at) {
             #[max_length = 66]
             id -> Varchar,
-            kill_id -> Int8,
+            #[max_length = 20]
+            kill_id -> Varchar,
             tenant -> Text,
             occurred_at -> Timestamptz,
-            solar_system_id -> Int8,
+            #[max_length = 20]
+            solar_system_id -> Varchar,
             loss_type -> Text,
-            killer_id -> Int8,
-            victim_id -> Int8,
-            reporter_id -> Int8,
+            #[max_length = 20]
+            killer_id -> Varchar,
+            #[max_length = 20]
+            victim_id -> Varchar,
+            #[max_length = 20]
+            reporter_id -> Varchar,
         }
     }
 
