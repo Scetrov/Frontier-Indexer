@@ -259,13 +259,13 @@ pub mod indexer {
             id -> Varchar,
             #[max_length = 20]
             item_id -> Varchar,
-            tenant -> Text,
             type_id -> Int8,
             #[max_length = 66]
             owner_cap_id -> Varchar,
             #[max_length = 66]
             location_hash -> Varchar,
-            solar_system_id -> Int8,
+            #[max_length = 20]
+            solar_system_id -> Varchar,
             x -> Text,
             y -> Text,
             z -> Text,
