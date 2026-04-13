@@ -62,7 +62,7 @@ impl AssemblyCreatedHandler {
 
 #[async_trait]
 impl Processor for AssemblyCreatedHandler {
-    const NAME: &'static str = "assembly_created_handler";
+    const NAME: &'static str = "assembly_created";
     type Value = StoredAssemblyCreated;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {

@@ -62,7 +62,7 @@ impl EnergyProductionStoppedHandler {
 
 #[async_trait]
 impl Processor for EnergyProductionStoppedHandler {
-    const NAME: &'static str = "energy_production_stopped_handler";
+    const NAME: &'static str = "energy_production_stopped";
     type Value = StoredEnergyProductionStopped;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {

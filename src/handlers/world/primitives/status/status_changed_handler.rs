@@ -62,7 +62,7 @@ impl StatusChangedHandler {
 
 #[async_trait]
 impl Processor for StatusChangedHandler {
-    const NAME: &'static str = "status_changed_handler";
+    const NAME: &'static str = "status_changed";
     type Value = StoredStatusChanged;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {

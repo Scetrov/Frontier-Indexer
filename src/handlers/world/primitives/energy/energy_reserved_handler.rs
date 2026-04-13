@@ -62,7 +62,7 @@ impl EnergyReservedHandler {
 
 #[async_trait]
 impl Processor for EnergyReservedHandler {
-    const NAME: &'static str = "energy_reserved_handler";
+    const NAME: &'static str = "energy_reserved";
     type Value = StoredEnergyReserved;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {

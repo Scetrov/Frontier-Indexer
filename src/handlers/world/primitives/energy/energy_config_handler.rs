@@ -132,7 +132,7 @@ pub enum EnergyConfigAction {
 
 #[async_trait]
 impl Processor for EnergyConfigHandler {
-    const NAME: &'static str = "energy_config_handler";
+    const NAME: &'static str = "energy_config";
     type Value = EnergyConfigAction;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {

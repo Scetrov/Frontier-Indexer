@@ -62,7 +62,7 @@ impl EnergyProductionStartedHandler {
 
 #[async_trait]
 impl Processor for EnergyProductionStartedHandler {
-    const NAME: &'static str = "energy_production_started_handler";
+    const NAME: &'static str = "energy_production_started";
     type Value = StoredEnergyProductionStarted;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {

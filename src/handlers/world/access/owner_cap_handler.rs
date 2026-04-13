@@ -78,7 +78,7 @@ pub enum OwnerCapAction {
 
 #[async_trait]
 impl Processor for OwnerCapHandler {
-    const NAME: &'static str = "owner_cap_handler";
+    const NAME: &'static str = "owner_caps";
     type Value = OwnerCapAction;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {

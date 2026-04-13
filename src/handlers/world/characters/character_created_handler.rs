@@ -59,7 +59,7 @@ impl CharacterCreatedHandler {
 
 #[async_trait]
 impl Processor for CharacterCreatedHandler {
-    const NAME: &'static str = "charater_created_handler";
+    const NAME: &'static str = "character_created";
     type Value = StoredCharacterCreated;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {

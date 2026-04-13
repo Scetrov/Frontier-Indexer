@@ -62,7 +62,7 @@ impl LocationRevealedHandler {
 
 #[async_trait]
 impl Processor for LocationRevealedHandler {
-    const NAME: &'static str = "location_revealed_handler";
+    const NAME: &'static str = "location_revealed";
     type Value = StoredLocationRevealed;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {

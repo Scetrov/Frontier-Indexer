@@ -78,7 +78,7 @@ pub enum CharacterAction {
 
 #[async_trait]
 impl Processor for CharacterHandler {
-    const NAME: &'static str = "character_handler";
+    const NAME: &'static str = "characters";
     type Value = CharacterAction;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {

@@ -77,7 +77,7 @@ pub enum AssemblyAction {
 
 #[async_trait]
 impl Processor for AssemblyHandler {
-    const NAME: &'static str = "assembly_handler";
+    const NAME: &'static str = "assemblies";
     type Value = AssemblyAction;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {
