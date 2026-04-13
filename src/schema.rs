@@ -177,8 +177,8 @@ pub mod indexer {
             #[max_length = 20]
             item_id -> Varchar,
             type_id -> Int8,
+            quantity -> Int8,
             quantity_old -> Int8,
-            quantity_new -> Int8,
             burning -> Bool,
         }
     }
