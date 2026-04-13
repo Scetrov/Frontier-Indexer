@@ -197,10 +197,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let mut conn = store.connect().await?;
     let table_registry = TableRegistry::load_from_db(&mut conn).await;
 
-    let context = AppContext {
-        env,
-        tables: Arc::new(table_registry),
-    };
+    let context = AppContext::new(env, table_registry);
 
     registry.register(Box::new(DbConnectionStatsCollector::new(
         Some("frontier_indexer_db"),
