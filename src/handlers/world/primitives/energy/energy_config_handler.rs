@@ -239,7 +239,7 @@ impl Handler for EnergyConfigHandler {
                     self.ctx.tables.add_table(conn, table).await?;
                 }
                 EnergyConfigAction::Upsert(config) => {
-                    let current = upsert_map.entry(config.assembly_id.clone());
+                    let current = upsert_map.entry(config.type_id.to_string());
 
                     match current {
                         Entry::Occupied(mut entry) => {
@@ -264,7 +264,7 @@ impl Handler for EnergyConfigHandler {
         if !final_values.is_empty() {
             diesel::insert_into(energy_config)
                 .values(final_values)
-                .on_conflict((assembly_id, package_id))
+                .on_conflict((type_id, table_id))
                 .do_update()
                 .set((
                     energy_cost.eq(excluded(energy_cost)),
