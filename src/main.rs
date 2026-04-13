@@ -179,7 +179,7 @@ async fn main() -> Result<(), anyhow::Error> {
         (env, ingestion, packages)
     };
 
-    let registry = Registry::new_custom(Some("frontier_indexer".into()), None)
+    let registry = Registry::new_custom(Some("frontier".into()), None)
         .context("Failed to create Prometheus registry.")?;
 
     let metrics = MetricsService::new(MetricsArgs { metrics_address }, registry.clone());
