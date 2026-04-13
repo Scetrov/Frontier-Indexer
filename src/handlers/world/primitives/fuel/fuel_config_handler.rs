@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use move_core_types::account_address::AccountAddress;
 use std::collections::hash_map::Entry;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -21,7 +21,6 @@ use sui_indexer_alt_framework::pipeline::Processor;
 use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
-use crate::handlers::is_indexed_tx;
 use crate::models::system::StoredTableRecord;
 use crate::models::world::MoveFuelConfig;
 use crate::models::world::StoredFuelConfig;
@@ -29,40 +28,17 @@ use crate::AppContext;
 
 pub struct FuelConfigHandler {
     ctx: AppContext,
-    package_set: HashSet<AccountAddress>,
 }
 
 impl FuelConfigHandler {
     pub fn new(ctx: &AppContext) -> Self {
-        let package_set: HashSet<AccountAddress> = ctx
-            .get_world_package_strings()
-            .iter()
-            .filter_map(|s| AccountAddress::from_str(s).ok())
-            .collect();
-
-        Self {
-            ctx: ctx.clone(),
-            package_set,
-        }
+        Self { ctx: ctx.clone() }
     }
 
     fn is_fuel_config(&self, obj: &Object) -> bool {
         let module_name = "fuel";
         let struct_name = "FuelConfig";
-
-        let Some(move_type) = obj.type_() else {
-            return false;
-        };
-
-        let Some(tag) = move_type.other() else {
-            return false;
-        };
-
-        if !self.package_set.contains(&tag.address) {
-            return false;
-        }
-
-        tag.module.as_str() == module_name && tag.name.as_str() == struct_name
+        self.ctx.is_world_object(obj, module_name, struct_name)
     }
 
     fn is_fuel_config_entry(
@@ -116,7 +92,7 @@ impl FuelConfigHandler {
             return None;
         }
 
-        if !self.package_set.contains(&package_id) {
+        if !self.ctx.world_packages.contains(&package_id) {
             return None;
         }
 
@@ -142,7 +118,7 @@ impl Processor for FuelConfigHandler {
         let mut table_updates = HashMap::new();
 
         for tx in &checkpoint.transactions {
-            if !is_indexed_tx(tx, &checkpoint.object_set, &self.ctx) {
+            if !self.ctx.is_indexed_tx(tx, &checkpoint.object_set) {
                 continue;
             }
 
