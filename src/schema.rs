@@ -540,6 +540,34 @@ pub mod indexer {
     }
 
     diesel::table! {
+        indexer.gates (id) {
+            #[max_length = 66]
+            id -> Varchar,
+            #[max_length = 20]
+            item_id -> Varchar,
+            tenant -> Text,
+            type_id -> Int8,
+            #[max_length = 66]
+            owner_cap_id -> Varchar,
+            #[max_length = 66]
+            location -> Varchar,
+            status -> Text,
+            #[max_length = 66]
+            energy_source_id -> Nullable<Varchar>,
+            #[max_length = 66]
+            linked_id -> Nullable<Varchar>,
+            name -> Nullable<Text>,
+            description -> Nullable<Text>,
+            url -> Nullable<Text>,
+            #[max_length = 66]
+            package_id -> Nullable<Varchar>,
+            module_name -> Nullable<Text>,
+            struct_name -> Nullable<Text>,
+            checkpoint_updated -> Int8,
+        }
+    }
+
+    diesel::table! {
         indexer.killmails (id, occurred_at) {
             #[max_length = 66]
             id -> Varchar,
@@ -685,6 +713,7 @@ pub mod indexer {
         events_turret_extension_revoked,
         fuel_config,
         gate_permits,
+        gates,
         killmails,
         network_nodes,
         owner_caps,
