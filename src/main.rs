@@ -1,7 +1,6 @@
 use anyhow::Context;
 use clap::Parser;
 use prometheus::Registry;
-use std::sync::Arc;
 use tokio;
 use url::Url;
 
@@ -238,6 +237,8 @@ async fn main() -> Result<(), anyhow::Error> {
 
                 // Turrets
                 indexer.sequential_pipeline(world::TurretCreatedHandler::new(&context), sequential.clone()).await?;
+                indexer.sequential_pipeline(world::TurretExtensionAuthorizedHandler::new(&context), sequential.clone()).await?;
+                indexer.sequential_pipeline(world::TurretExtensionRevokedHandler::new(&context), sequential.clone()).await?;
                 indexer.sequential_pipeline(world::TurretHandler::new(&context), sequential.clone()).await?;
 
                 // Chracters
