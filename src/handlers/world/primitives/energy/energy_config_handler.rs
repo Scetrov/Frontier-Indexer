@@ -10,6 +10,7 @@ use diesel::query_dsl::methods::FilterDsl;
 use diesel::upsert::excluded;
 use diesel_async::RunQueryDsl;
 
+use sui_pg_db::FieldCount;
 use sui_types::effects::{IDOperation, TransactionEffectsAPI};
 use sui_types::object::Object;
 use sui_types::object::Owner;
@@ -100,6 +101,7 @@ impl EnergyConfigHandler {
     }
 }
 
+#[derive(FieldCount)]
 pub enum EnergyConfigAction {
     Register(StoredTableRecord),
     Upsert(StoredEnergyConfig),
