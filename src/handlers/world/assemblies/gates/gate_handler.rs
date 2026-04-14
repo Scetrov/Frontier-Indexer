@@ -47,7 +47,7 @@ pub enum GateAction {
 
 #[async_trait]
 impl Processor for GateHandler {
-    const NAME: &'static str = "gate";
+    const NAME: &'static str = "gates";
     type Value = GateAction;
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {
