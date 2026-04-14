@@ -15,7 +15,9 @@ pub use assemblies::extensions::event_extension_frozen::*;
 pub use assemblies::extensions::extension_freezes::*;
 
 pub use assemblies::gates::event_gate_created::*;
-pub use assemblies::gates::event_gate_jump::*;
+pub use assemblies::gates::event_gate_extension_authorized::*;
+pub use assemblies::gates::event_gate_extension_revoked::*;
+pub use assemblies::gates::event_gate_jumped::*;
 pub use assemblies::gates::event_gate_linked::*;
 pub use assemblies::gates::event_gate_unlinked::*;
 pub use assemblies::gates::event_jump_permit_issued::*;
