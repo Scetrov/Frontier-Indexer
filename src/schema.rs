@@ -251,6 +251,22 @@ pub mod indexer {
     }
 
     diesel::table! {
+        indexer.events_gate_created (event_id, occurred_at) {
+            #[max_length = 100]
+            event_id -> Varchar,
+            occurred_at -> Timestamptz,
+            #[max_length = 66]
+            id -> Varchar,
+            #[max_length = 20]
+            item_id -> Varchar,
+            tenant -> Text,
+            type_id -> Int8,
+            #[max_length = 66]
+            owner_cap_id -> Varchar,
+        }
+    }
+
+    diesel::table! {
         indexer.events_location_revealed (event_id, occurred_at) {
             #[max_length = 100]
             event_id -> Varchar,
@@ -523,6 +539,7 @@ pub mod indexer {
         events_fuel_efficiency_removed,
         events_fuel_efficiency_set,
         events_fuel_withdrawn,
+        events_gate_created,
         events_location_revealed,
         events_network_node_created,
         events_owner_cap_created,
