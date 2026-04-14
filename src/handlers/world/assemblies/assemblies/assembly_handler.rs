@@ -38,6 +38,7 @@ impl AssemblyHandler {
         self.ctx.is_world_object(obj, module_name, struct_name)
     }
 }
+
 #[derive(FieldCount)]
 pub enum AssemblyAction {
     Upsert(StoredAssembly),
@@ -51,7 +52,7 @@ impl Processor for AssemblyHandler {
 
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {
         let mut results = vec![];
-        let cp_sequence = checkpoint.summary.sequence_number as i64;
+        let checkpoint_updated = checkpoint.summary.sequence_number as i64;
 
         for tx in &checkpoint.transactions {
             if !self.ctx.is_indexed_tx(tx, &checkpoint.object_set) {
@@ -68,7 +69,7 @@ impl Processor for AssemblyHandler {
 
                             if let Some(obj) = checkpoint.object_set.get(&key) {
                                 if self.is_assembly(obj) {
-                                    let assembly = StoredAssembly::from_object(obj, cp_sequence);
+                                    let assembly = StoredAssembly::from_object(obj, checkpoint_updated);
                                     results.push(AssemblyAction::Upsert(assembly));
                                 }
                             }
