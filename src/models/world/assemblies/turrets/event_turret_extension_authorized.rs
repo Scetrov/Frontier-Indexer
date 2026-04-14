@@ -42,7 +42,7 @@ impl StoredTurretExtensionAuthorized {
             .expect("Failed to deserialze Turret Extension Authorized event");
 
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed ot parse checkpoint timestamp into DateTime");
+            .expect("Failed to parse checkpoint timestamp into DateTime");
 
         let (package_id, module_name, struct_name) = move_event.extension_type.to_components();
 
