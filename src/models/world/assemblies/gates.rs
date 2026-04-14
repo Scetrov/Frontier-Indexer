@@ -7,4 +7,4 @@ pub mod event_gate_permit_issued;
 pub mod event_gate_unlinked;
 pub mod gate_config;
 pub mod gates;
-pub mod jump_permits;
+pub mod gate_permits;

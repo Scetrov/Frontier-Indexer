@@ -19,11 +19,11 @@ pub use assemblies::gates::event_gate_extension_authorized::*;
 pub use assemblies::gates::event_gate_extension_revoked::*;
 pub use assemblies::gates::event_gate_jumped::*;
 pub use assemblies::gates::event_gate_linked::*;
+pub use assemblies::gates::event_gate_permit_issued::*;
 pub use assemblies::gates::event_gate_unlinked::*;
-pub use assemblies::gates::event_jump_permit_issued::*;
 pub use assemblies::gates::gate_config::*;
+pub use assemblies::gates::gate_permits::*;
 pub use assemblies::gates::gates::*;
-pub use assemblies::gates::jump_permits::*;
 
 pub use assemblies::network_nodes::event_network_node_created::*;
 pub use assemblies::network_nodes::network_nodes::*;
