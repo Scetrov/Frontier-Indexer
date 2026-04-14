@@ -399,6 +399,39 @@ pub mod indexer {
     }
 
     diesel::table! {
+        indexer.network_nodes (id) {
+            #[max_length = 66]
+            id -> Varchar,
+            #[max_length = 20]
+            item_id -> Varchar,
+            tenant -> Text,
+            type_id -> Int8,
+            #[max_length = 66]
+            owner_cap_id -> Varchar,
+            #[max_length = 66]
+            location -> Varchar,
+            status -> Text,
+            energy_production -> Int8,
+            energy_capacity -> Int8,
+            energy_reserved -> Int8,
+            connected_ids -> Array<Nullable<Text>>,
+            burning -> Bool,
+            burn_rate -> Int8,
+            burn_start -> Timestamptz,
+            burn_updated -> Timestamptz,
+            burn_elapsed -> Int8,
+            fuel_capacity -> Int8,
+            fuel_quantity -> Int8,
+            fuel_type -> Nullable<Int8>,
+            fuel_volume -> Nullable<Int8>,
+            name -> Nullable<Text>,
+            description -> Nullable<Text>,
+            url -> Nullable<Text>,
+            checkpoint_updated -> Int8,
+        }
+    }
+
+    diesel::table! {
         indexer.owner_caps (id) {
             #[max_length = 66]
             id -> Varchar,
@@ -483,6 +516,7 @@ pub mod indexer {
         events_turret_extension_revoked,
         fuel_config,
         killmails,
+        network_nodes,
         owner_caps,
         system_table_registry,
         turrets,
