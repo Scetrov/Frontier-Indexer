@@ -54,7 +54,7 @@ impl EnergyConfigHandler {
             return None;
         };
 
-        if !move_type.is_dynamic_field() || move_type.type_params().len() <= 1 {
+        if !move_type.is_dynamic_field() || move_type.type_params().len() != 2 {
             return None;
         }
 
