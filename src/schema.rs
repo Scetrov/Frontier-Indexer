@@ -777,6 +777,21 @@ pub mod indexer {
     }
 
     diesel::table! {
+        indexer.items (id) {
+            #[max_length = 66]
+            id -> Varchar,
+            #[max_length = 66]
+            parent_id -> Varchar,
+            #[max_length = 66]
+            location -> Varchar,
+            type_id -> Int8,
+            item_id -> Int8,
+            volume -> Int8,
+            quantity -> Int8,
+        }
+    }
+
+    diesel::table! {
         indexer.killmails (id, occurred_at) {
             #[max_length = 66]
             id -> Varchar,
@@ -964,6 +979,7 @@ pub mod indexer {
         gates,
         inventories,
         inventory_entries,
+        items,
         killmails,
         network_nodes,
         owner_caps,
