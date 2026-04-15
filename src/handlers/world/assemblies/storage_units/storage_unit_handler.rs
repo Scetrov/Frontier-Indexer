@@ -12,6 +12,7 @@ use diesel_async::RunQueryDsl;
 use sui_pg_db::FieldCount;
 use sui_types::effects::{IDOperation, TransactionEffectsAPI};
 use sui_types::object::Object;
+use sui_types::object::Owner;
 use sui_types::storage::ObjectKey;
 
 use sui_indexer_alt_framework::pipeline::sequential::Handler;
@@ -19,6 +20,7 @@ use sui_indexer_alt_framework::pipeline::Processor;
 use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
+use crate::models::world::StoredExtensionFreeze;
 use crate::models::world::StoredStorageUnit;
 
 use crate::AppContext;
@@ -37,11 +39,55 @@ impl StorageUnitHandler {
         let struct_name = "StorageUnit";
         self.ctx.is_world_object(obj, module_name, struct_name)
     }
+
+    fn is_storage_unit_extension_freeze(
+        &self,
+        obj: &Object,
+        storage_units: &HashMap<String, Arc<StoredStorageUnit>>,
+    ) -> Option<Arc<StoredStorageUnit>> {
+        let key_module = "extension_freeze";
+        let key_struct = "ExtensionFrozenKey";
+
+        let value_module = "extension_freeze";
+        let value_struct = "ExtensionFrozen";
+
+        let Some(move_type) = obj.type_() else {
+            return None;
+        };
+
+        if !move_type.is_dynamic_field() || move_type.type_params().len() != 2 {
+            return None;
+        };
+
+        if !self
+            .ctx
+            .is_world_struct(move_type.type_params()[0].as_ref(), key_module, key_struct)
+        {
+            return None;
+        }
+
+        if !self.ctx.is_world_struct(
+            move_type.type_params()[1].as_ref(),
+            value_module,
+            value_struct,
+        ) {
+            return None;
+        }
+
+        let Owner::ObjectOwner(owner_str) = obj.owner else {
+            return None;
+        };
+
+        let owner_id = owner_str.to_string();
+
+        storage_units.get(&owner_id).cloned()
+    }
 }
 
 #[derive(FieldCount)]
 pub enum StorageUnitAction {
     Upsert(StoredStorageUnit),
+    Freeze(StoredExtensionFreeze),
     Delete(String),
 }
 
@@ -53,6 +99,8 @@ impl Processor for StorageUnitHandler {
     async fn process(&self, checkpoint: &Arc<Checkpoint>) -> anyhow::Result<Vec<Self::Value>> {
         let mut results = vec![];
         let checkpoint_updated = checkpoint.summary.sequence_number as i64;
+
+        let mut storage_units = HashMap::new();
 
         for tx in &checkpoint.transactions {
             if !self.ctx.is_indexed_tx(tx, &checkpoint.object_set) {
@@ -75,8 +123,18 @@ impl Processor for StorageUnitHandler {
                         };
 
                         if self.is_storage_unit(obj) {
-                            let turret = StoredStorageUnit::from_object(obj, checkpoint_updated);
-                            results.push(StorageUnitAction::Upsert(turret));
+                            let storage_unit =
+                                StoredStorageUnit::from_object(obj, checkpoint_updated);
+                            storage_units
+                                .insert(storage_unit.id.clone(), Arc::new(storage_unit.clone()));
+                            results.push(StorageUnitAction::Upsert(storage_unit));
+                        }
+
+                        if let Some(storage_unit) =
+                            self.is_storage_unit_extension_freeze(obj, &storage_units)
+                        {
+                            let freeze = StoredExtensionFreeze::from_object(obj, storage_unit);
+                            results.push(StorageUnitAction::Freeze(freeze));
                         }
                     }
                     IDOperation::Deleted => {
@@ -104,9 +162,8 @@ impl Handler for StorageUnitHandler {
         batch: &Self::Batch,
         conn: &mut Connection<'a>,
     ) -> anyhow::Result<usize> {
-        use crate::schema::indexer::storage_units::dsl::*;
-
         let mut upsert_map: HashMap<String, &StoredStorageUnit> = HashMap::new();
+        let mut to_freeze = Vec::new();
         let mut to_delete = Vec::new();
 
         for action in batch {
@@ -125,6 +182,7 @@ impl Handler for StorageUnitHandler {
                         }
                     }
                 }
+                StorageUnitAction::Freeze(freeze) => to_freeze.push(freeze),
                 StorageUnitAction::Delete(id_str) => to_delete.push(id_str.clone()),
             }
         }
@@ -135,6 +193,8 @@ impl Handler for StorageUnitHandler {
         let final_values: Vec<&StoredStorageUnit> = upsert_map.into_values().collect();
 
         if !final_values.is_empty() {
+            use crate::schema::indexer::storage_units::dsl::*;
+
             diesel::insert_into(storage_units)
                 .values(final_values)
                 .on_conflict(id)
@@ -160,9 +220,27 @@ impl Handler for StorageUnitHandler {
                 .await?;
         }
 
+        if !to_freeze.is_empty() {
+            use crate::schema::indexer::extension_freezes::dsl::*;
+
+            diesel::insert_into(extension_freezes)
+                .values(to_freeze)
+                .on_conflict(id)
+                .do_nothing()
+                .execute(conn)
+                .await?;
+        }
+
         if !to_delete.is_empty() {
-            diesel::delete(storage_units)
-                .filter(id.eq_any(to_delete))
+            use crate::schema::indexer::{extension_freezes, storage_units};
+
+            diesel::delete(storage_units::dsl::storage_units)
+                .filter(storage_units::dsl::id.eq_any(to_delete.clone()))
+                .execute(conn)
+                .await?;
+
+            diesel::delete(extension_freezes::dsl::extension_freezes)
+                .filter(extension_freezes::dsl::id.eq_any(to_delete))
                 .execute(conn)
                 .await?;
         }
