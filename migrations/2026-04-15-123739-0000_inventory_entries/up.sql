@@ -1,5 +1,4 @@
 CREATE TABLE IF NOT EXISTS indexer.inventory_entries (
-  parent_id           VARCHAR(66)   NOT NULL,
   inventory_id        VARCHAR(66)   NOT NULL,
   type_id             BIGINT        NOT NULL,
   item_id             BIGINT        NOT NULL,

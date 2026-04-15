@@ -765,8 +765,6 @@ pub mod indexer {
     diesel::table! {
         indexer.inventory_entries (inventory_id, type_id) {
             #[max_length = 66]
-            parent_id -> Varchar,
-            #[max_length = 66]
             inventory_id -> Varchar,
             type_id -> Int8,
             item_id -> Int8,
