@@ -108,20 +108,24 @@ impl StoredGate {
 
 impl Freezable for StoredGate {
     fn id(&self) -> String {
-        self.id
+        self.id.clone()
     }
 
     fn package_id(&self) -> String {
-        self.package_id.expect("Package_id was available on turret")
+        self.package_id
+            .clone()
+            .expect("Package_id was available on turret")
     }
 
     fn module_name(&self) -> String {
         self.module_name
+            .clone()
             .expect("Module_name was not available on turret")
     }
 
     fn struct_name(&self) -> String {
         self.struct_name
+            .clone()
             .expect("Struct_name was not available on turret")
     }
 }
