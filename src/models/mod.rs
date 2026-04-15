@@ -29,3 +29,13 @@ impl MoveTypeName {
         (package_id, module_name, struct_name)
     }
 }
+
+trait Freezable {
+    fn id(&self) -> String;
+
+    fn package_id(&self) -> String;
+
+    fn module_name(&self) -> String;
+
+    fn struct_name(&self) -> String;
+}

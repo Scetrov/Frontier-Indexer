@@ -10,6 +10,7 @@ use crate::models::world::MoveAssemblyStatus;
 use crate::models::world::MoveLocation;
 use crate::models::world::MoveMetadata;
 use crate::models::world::MoveTenantItemId;
+use crate::models::Freezable;
 use crate::models::MoveTypeName;
 use crate::schema::indexer::gates;
 
@@ -102,5 +103,25 @@ impl StoredGate {
             struct_name,
             checkpoint_updated,
         }
+    }
+}
+
+impl Freezable for StoredGate {
+    fn id(&self) -> String {
+        self.id
+    }
+
+    fn package_id(&self) -> String {
+        self.package_id.expect("Package_id was available on turret")
+    }
+
+    fn module_name(&self) -> String {
+        self.module_name
+            .expect("Module_name was not available on turret")
+    }
+
+    fn struct_name(&self) -> String {
+        self.struct_name
+            .expect("Struct_name was not available on turret")
     }
 }
