@@ -1,4 +1,3 @@
--- Your SQL goes here
 CREATE TABLE IF NOT EXISTS indexer.events_gate_created (
   event_id      VARCHAR(100)  NOT NULL,
   occurred_at   TIMESTAMPTZ   NOT NULL,
