@@ -30,6 +30,7 @@ pub use assemblies::network_nodes::network_nodes::*;
 
 pub use assemblies::storage_units::event_storage_unit_created::*;
 pub use assemblies::storage_units::event_storage_unit_extension_authorized::*;
+pub use assemblies::storage_units::event_storage_unit_extension_revoked::*;
 pub use assemblies::storage_units::storage_units::*;
 
 pub use assemblies::turrets::event_turret_created::*;
