@@ -11,7 +11,6 @@ pub use access::owner_cap_transferred_handler::*;
 pub use assemblies::assemblies::assembly_created_handler::*;
 pub use assemblies::assemblies::assembly_handler::*;
 
-pub use assemblies::extensions::extension_freeze_handler::*;
 pub use assemblies::extensions::extension_frozen_handler::*;
 
 pub use assemblies::gates::gate_config_handler::*;
