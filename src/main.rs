@@ -238,6 +238,18 @@ async fn main() -> Result<(), anyhow::Error> {
                 // Extensions
                 indexer.sequential_pipeline(world::ExtensionFrozenHandler::new(&context), sequential.clone()).await?;
 
+                // Gates
+                indexer.sequential_pipeline(world::GateConfigHandler::new(&context), sequential.clone()).await?;
+                indexer.sequential_pipeline(world::GateCreatedHandler::new(&context), sequential.clone()).await?;
+                indexer.sequential_pipeline(world::GateExtensionAuthorizedHandler::new(&context), sequential.clone()).await?;
+                indexer.sequential_pipeline(world::GateExtensionRevokedHandler::new(&context), sequential.clone()).await?;
+                indexer.sequential_pipeline(world::GateHandler::new(&context), sequential.clone()).await?;
+                indexer.sequential_pipeline(world::GateJumpedHanlder::new(&context), sequential.clone()).await?;
+                indexer.sequential_pipeline(world::GateLinkedHandler::new(&context), sequential.clone()).await?;
+                indexer.sequential_pipeline(world::GateUnlinkedHandler::new(&context), sequential.clone()).await?;
+                indexer.sequential_pipeline(world::GatePermitHandler::new(&context), sequential.clone()).await?;
+                indexer.sequential_pipeline(world::GatePermitIssuedHandler::new(&context), sequential.clone()).await?;
+
                 // Network Nodes
                 indexer.sequential_pipeline(world::NetworkNodeCreatedHandler::new(&context), sequential.clone()).await?;
                 indexer.sequential_pipeline(world::NetworkNodeHandler::new(&context), sequential.clone()).await?;
