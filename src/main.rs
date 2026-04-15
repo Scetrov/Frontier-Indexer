@@ -282,6 +282,13 @@ async fn main() -> Result<(), anyhow::Error> {
                 indexer.sequential_pipeline(world::FuelEfficiencySetHandler::new(&context), sequential.clone()).await?;
                 indexer.sequential_pipeline(world::FuelWithdrawnHandler::new(&context), sequential.clone()).await?;
 
+                // Inventories
+                indexer.sequential_pipeline(world::ItemBurnedHandler::new(&context), sequential.clone()).await?;
+                indexer.sequential_pipeline(world::ItemDepositedHandler::new(&context), sequential.clone()).await?;
+                indexer.sequential_pipeline(world::ItemDestroyedHandler::new(&context), sequential.clone()).await?;
+                indexer.sequential_pipeline(world::ItemMintedHandler::new(&context), sequential.clone()).await?;
+                indexer.sequential_pipeline(world::ItemWithdrawnHandler::new(&context), sequential.clone()).await?;
+
                 // Locations
                 indexer.sequential_pipeline(world::LocationRevealedHandler::new(&context), sequential.clone()).await?;
 
