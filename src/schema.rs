@@ -751,6 +751,18 @@ pub mod indexer {
     }
 
     diesel::table! {
+        indexer.inventories (id) {
+            #[max_length = 66]
+            id -> Varchar,
+            #[max_length = 66]
+            parent_id -> Varchar,
+            capacity_used -> Int8,
+            capacity_max -> Int8,
+            checkpoint_updated -> Int8,
+        }
+    }
+
+    diesel::table! {
         indexer.killmails (id, occurred_at) {
             #[max_length = 66]
             id -> Varchar,
@@ -936,6 +948,7 @@ pub mod indexer {
         gate_config,
         gate_permits,
         gates,
+        inventories,
         killmails,
         network_nodes,
         owner_caps,
