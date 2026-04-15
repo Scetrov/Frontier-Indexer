@@ -40,11 +40,7 @@ impl StorageUnitHandler {
         self.ctx.is_world_object(obj, module_name, struct_name)
     }
 
-    fn is_storage_unit_extension_freeze(
-        &self,
-        obj: &Object,
-        storage_units: &HashMap<String, Arc<StoredStorageUnit>>,
-    ) -> Option<Arc<StoredStorageUnit>> {
+    fn is_extension_freeze(&self, obj: &Object) -> bool {
         let key_module = "extension_freeze";
         let key_struct = "ExtensionFrozenKey";
 
@@ -52,28 +48,32 @@ impl StorageUnitHandler {
         let value_struct = "ExtensionFrozen";
 
         let Some(move_type) = obj.type_() else {
-            return None;
+            return false;
         };
 
         if !move_type.is_dynamic_field() || move_type.type_params().len() != 2 {
-            return None;
+            return false;
         };
 
         if !self
             .ctx
             .is_world_struct(move_type.type_params()[0].as_ref(), key_module, key_struct)
         {
-            return None;
+            return false;
         }
 
-        if !self.ctx.is_world_struct(
+        self.ctx.is_world_struct(
             move_type.type_params()[1].as_ref(),
             value_module,
             value_struct,
-        ) {
-            return None;
-        }
+        )
+    }
 
+    fn get_extension_freeze_storage_unit(
+        &self,
+        obj: &Object,
+        storage_units: &HashMap<String, Arc<StoredStorageUnit>>,
+    ) -> Option<Arc<StoredStorageUnit>> {
         let Owner::ObjectOwner(owner_str) = obj.owner else {
             return None;
         };
@@ -101,6 +101,7 @@ impl Processor for StorageUnitHandler {
         let checkpoint_updated = checkpoint.summary.sequence_number as i64;
 
         let mut storage_units = HashMap::new();
+        let mut freezes: Vec<&Object> = Vec::new();
 
         for tx in &checkpoint.transactions {
             if !self.ctx.is_indexed_tx(tx, &checkpoint.object_set) {
@@ -130,17 +131,22 @@ impl Processor for StorageUnitHandler {
                             results.push(StorageUnitAction::Upsert(storage_unit));
                         }
 
-                        if let Some(storage_unit) =
-                            self.is_storage_unit_extension_freeze(obj, &storage_units)
-                        {
-                            let freeze = StoredExtensionFreeze::from_object(obj, storage_unit);
-                            results.push(StorageUnitAction::Freeze(freeze));
+                        if self.is_extension_freeze(obj) {
+                            freezes.push(obj);
                         }
                     }
                     IDOperation::Deleted => {
                         results.push(StorageUnitAction::Delete(object_id.to_string()));
                     }
                 }
+            }
+        }
+
+        for obj in freezes {
+            if let Some(storage_unit) = self.get_extension_freeze_storage_unit(obj, &storage_units)
+            {
+                let freeze = StoredExtensionFreeze::from_object(obj, storage_unit);
+                results.push(StorageUnitAction::Freeze(freeze));
             }
         }
 
