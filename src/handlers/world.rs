@@ -58,7 +58,6 @@ pub use primitives::fuel::fuel_efficiency_removed_handler::*;
 pub use primitives::fuel::fuel_efficiency_set_handler::*;
 pub use primitives::fuel::fuel_withdrawn::*;
 
-pub use primitives::inventories::inventory_entry_handlers::*;
 pub use primitives::inventories::inventory_handler::*;
 pub use primitives::inventories::item_burned_handler::*;
 pub use primitives::inventories::item_deposited_handler::*;
