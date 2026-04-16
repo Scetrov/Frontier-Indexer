@@ -1,9 +1,11 @@
-use serde::Deserialize;
 use diesel::prelude::*;
+use serde::Deserialize;
 use std::collections::HashMap;
 
 use sui_indexer_alt_framework::FieldCount;
+use sui_sdk_types::Address;
 use sui_types::collection_types::VecMap;
+use sui_types::dynamic_field::Field;
 use sui_types::object::Object;
 
 use crate::models::world::MoveItemEntry;
@@ -36,12 +38,12 @@ impl StoredInventory {
         let move_obj = obj.data.try_as_move().expect("Object is not a Move object");
         let bytes = move_obj.contents();
 
-        let inventory: MoveInventory =
+        let inventory: Field<Address, MoveInventory> =
             bcs::from_bytes(bytes).expect("Failed to deserialize Inventory object");
 
         let inventory_id = obj.id().to_canonical_string(true);
 
-        let entries: HashMap<i64, StoredInventoryEntry> = inventory
+        let entries: HashMap<i64, StoredInventoryEntry> = inventory.value
             .items
             .contents
             .into_iter()
@@ -60,8 +62,8 @@ impl StoredInventory {
         Self {
             id: obj.id().to_canonical_string(true),
             parent_id,
-            capacity_max: inventory.max_capacity as i64,
-            capacity_used: inventory.used_capacity as i64,
+            capacity_max: inventory.value.max_capacity as i64,
+            capacity_used: inventory.value.used_capacity as i64,
             checkpoint_updated,
             entries,
         }
