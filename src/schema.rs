@@ -767,7 +767,8 @@ pub mod indexer {
             #[max_length = 66]
             inventory_id -> Varchar,
             type_id -> Int8,
-            item_id -> Int8,
+            #[max_length = 20]
+            item_id -> Varchar,
             volume -> Int8,
             quantity -> Int8,
             checkpoint_updated -> Int8,
