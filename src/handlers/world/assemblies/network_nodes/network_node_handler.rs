@@ -69,12 +69,12 @@ impl Processor for NetworkNodeHandler {
 
                             if let Some(obj) = checkpoint.object_set.get(&key) {
                                 if self.is_network_node(obj) {
-                                    let turret = StoredNetworkNode::from_object(
+                                    let network_node = StoredNetworkNode::from_object(
                                         &self.ctx,
                                         obj,
                                         checkpoint_updated,
                                     );
-                                    results.push(NetworkNodeAction::Upsert(turret));
+                                    results.push(NetworkNodeAction::Upsert(network_node));
                                 }
                             }
                         }
@@ -111,17 +111,17 @@ impl Handler for NetworkNodeHandler {
 
         for action in batch {
             match action {
-                NetworkNodeAction::Upsert(turret) => {
-                    let entry = upsert_map.entry(turret.id.clone());
+                NetworkNodeAction::Upsert(network_node) => {
+                    let entry = upsert_map.entry(network_node.id.clone());
 
                     match entry {
                         Entry::Occupied(mut entry) => {
-                            if turret.checkpoint_updated > entry.get().checkpoint_updated {
-                                entry.insert(turret);
+                            if network_node.checkpoint_updated > entry.get().checkpoint_updated {
+                                entry.insert(network_node);
                             }
                         }
                         Entry::Vacant(entry) => {
-                            entry.insert(turret);
+                            entry.insert(network_node);
                         }
                     }
                 }
