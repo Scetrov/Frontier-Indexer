@@ -21,7 +21,7 @@ docker run -d \
 ```
 
 ```sh
-docker run ghcr.io/frontier/indexer:<version> \
+docker run ghcr.io/ocky-public/frontier-indexer:<version> \
   -e DB_HOST=your-db-host \
   -e DB_NAME=your-db-name \
   -e DB_USER=your-db-user \
