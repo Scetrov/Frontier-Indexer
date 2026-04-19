@@ -174,17 +174,17 @@ impl Handler for StorageUnitHandler {
 
         for action in batch {
             match action {
-                StorageUnitAction::Upsert(turret) => {
-                    let entry = upsert_map.entry(turret.id.clone());
+                StorageUnitAction::Upsert(storage_unit) => {
+                    let entry = upsert_map.entry(storage_unit.id.clone());
 
                     match entry {
                         Entry::Occupied(mut entry) => {
-                            if turret.checkpoint_updated > entry.get().checkpoint_updated {
-                                entry.insert(turret);
+                            if storage_unit.checkpoint_updated > entry.get().checkpoint_updated {
+                                entry.insert(storage_unit);
                             }
                         }
                         Entry::Vacant(entry) => {
-                            entry.insert(turret);
+                            entry.insert(storage_unit);
                         }
                     }
                 }
